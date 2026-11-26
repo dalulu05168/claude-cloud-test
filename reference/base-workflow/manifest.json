@@ -48,7 +48,7 @@
     "SKILL.md": "8fab6abf8092203e0f4dfa900d4388e7b86b777c67feed23ad788276980ddc25",
     "tests/test_evening.py": "39aa5f5f25c692bec004e63c80fc60a957be09ce48836b6d89ce180c6d18c3e4",
     "tests/test_memory.py": "97cd7ba6900fb2d7baa029804e0098c661b727db1b3ff27004c09778c28820df",
-    "tests/test_review.py": "de97c1ca6119a1ab50aefd41a5cabfa69301add6210591bdb9678b257412ae39",
+    "tests/test_review.py": "6f67832ede1b4e509297040d526148583178071194e8b53d110b2f73b0827f13",
     "tests/test_session.py": "b5d225393bebc9b613d2ac241634c1247e550ec090108d86be5f0a4fb56843a2",
     "tests/test_workflow.py": "7284a8f3ef41ad89236a44207f0faca054f3a02b06140b38bdb87157a475f129",
     "scripts/silence_check.py": "5d11a874d0a8077447c699c87ad0128d094499f0a01e846d25f35443db11756c",

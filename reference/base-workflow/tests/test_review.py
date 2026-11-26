@@ -135,11 +135,11 @@ if __name__ == '__main__':
 class EveningRules(unittest.TestCase):
     HEAD = '===== 资讯助理 =====\n🌤 大家晚上好！欢迎回来！\n\n'
 
-    def test_evening_member_romanian_fails_but_morning_ok(self):
+    def test_member_romanian_words_fail_in_all_sessions(self):
         code, res = run(self.HEAD + '12男：\nPăi，SNP今天见绿了。\n', '--fragment')
         self.assertEqual(code, 1)
         code, res = run('===== 资讯助理 =====\n🌤 大家早上好！欢迎回来！\n\n12男：\nPăi，SNP今天见绿了。\n', '--fragment')
-        self.assertEqual(res['status'], 'PASS')
+        self.assertEqual(code, 1)
 
     def test_evening_member_quotes_and_you_two_fail(self):
         for t in ('那句话里的“总算”听着像松一口气', '你们两个都在猜'):
