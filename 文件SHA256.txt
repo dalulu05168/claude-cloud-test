@@ -102,7 +102,7 @@ b91f7c2f2c07031fcce3514de7ef59e33433b909bc77e8d8272b32162ccbd5cb  ./reference/ag
 8fab6abf8092203e0f4dfa900d4388e7b86b777c67feed23ad788276980ddc25  ./reference/base-workflow/SKILL.md
 34482b58049fb8ca388135a8214017d52ffbc9f7298cdbd46b44febb612bcd48  ./reference/base-workflow/assets/logo-metadata.json
 1ab4957f02a9094eb45007c46eab1d37e99178b35b1b5b2f25eafa24b80ed332  ./reference/base-workflow/assets/westcott-logo-original.png
-b2210b16fcd1a0e1a87316ee3bc63ac2522468da0bd6b80a1eac47a365217592  ./reference/base-workflow/manifest.json
+eddd1a8a0f680d4a26f81b0ccfe1a1bed4d3c047949651e1b6c0da970a1f2326  ./reference/base-workflow/manifest.json
 aca576cfea3c98e1f39533916450d239265693feed1d930f5a579dc56a2c44a3  ./reference/base-workflow/references/acceptance.md
 7e3c1697dadd7405931bb8bddc9c1e2a884007991c3a34704dc4deee8564bc64  ./reference/base-workflow/references/assistant.md
 699f09d4bdc238b87beaae723ef2f08d54d3d745d8759705f8c7e823dcda2b72  ./reference/base-workflow/references/broadcast-format.md
@@ -129,13 +129,13 @@ e952f0ebd5e5811bc82a62cdbeec03434dfc7e484b434f7785c27b739cb16f83  ./reference/ba
 5a7b2d3003fb539dd56f5e616eb7ca61d1d5496d9416c8ca50855181ff344a58  ./reference/base-workflow/references/evening/teacher.md
 089d17e69517998d9d0a1cd1de52f454976c11ae07a2c18baeaeff90fb42e28f  ./reference/base-workflow/references/handoff-template.json
 afed588ceccdd4fcb41f998d8cd6d2bcfcf96f64a9658dda55f66df1620a88fc  ./reference/base-workflow/references/maintenance.md
-08bcdf3741e1051e92679030e485d64f5be426b59804cfef259952eae102d858  ./reference/base-workflow/references/members.md
+8a8a42acc7b42031b82e6f56f27544594362662fd2bce61a4aa9d3545bb34f64  ./reference/base-workflow/references/members.md
 7149fd2d33e7b6656dfd300e30b36a9a6eef04b733aa94439a48e33f29533dbd  ./reference/base-workflow/references/memory.md
 2288f8b8a4d16f82cebb2bda71443fc807ceb53774d40587850a090b2c64c0fb  ./reference/base-workflow/references/roster.json
 86fd89ae90d21df0639af2639e166e11320f0b42009c797bfdedd13df588e14f  ./reference/base-workflow/references/runtime.md
 d4e08ed6741bff6d1db7defc631aa7a7e9c8ebbef3465c67ab390b836de32358  ./reference/base-workflow/references/session-example.json
 15dcbcf2f8d055acc7109189158a2609575b0a53aaaf07d6086c4fddd9b4b0f1  ./reference/base-workflow/references/session.md
-3813e4d765fc1b2969a62ce48313839fe990a0efe0acc3ffd1d3c11a40ed4e8c  ./reference/base-workflow/references/teacher.md
+d9a83d5aa3afa17c897e014b38e9dee2eeaa6e098114b533f61e60cd6426ce21  ./reference/base-workflow/references/teacher.md
 adb6ca53ae1875a1bd2a3bf7f0532df7b8f8e863ec1bf30c4b34e63ba8bbb973  ./reference/base-workflow/references/writer.md
 f670f04773dfafd5ccd620a9f0e96a229a2aadb52da9d2304b7ef7387a4f3098  ./reference/base-workflow/references/writing-examples.md
 0efbbdf77a3c23ae21c40ae27f7739ead71bdb8a3dc3a9e496ddf7f1acbf4f81  ./reference/base-workflow/scripts/__pycache__/memory_store.cpython-313.pyc
