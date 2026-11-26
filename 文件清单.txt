@@ -41,7 +41,11 @@
 ./.codex/agents/westcott-writer.toml
 ./.gitignore
 ./.mcp.json
+./.westcott-state/adopted-9a9a9d03-a1ab-4df7-b5e3-bfca86cfd3c7.json
+./.westcott-state/agenda-000001.json
+./.westcott-state/draft-9a9a9d03-a1ab-4df7-b5e3-bfca86cfd3c7.json
 ./.westcott-state/scene-2026-11-25-morning-000001.json
+./.westcott-state/scene-2026-11-26-evening-000001.json
 ./11-26周四下午稿.txt
 ./AGENTS.md
 ./CLAUDE.md
@@ -232,6 +236,7 @@
 ./课程/晚间草稿/2026-11-24_美股开盘卡.png
 ./课程/晚间草稿/2026-11-25_周三_晚间.txt
 ./课程/晚间草稿/2026-11-26_周四_晚间.txt
+./课程/晚间草稿/2026-11-26_周四_晚间_开群出题拆分版.txt
 ./课程/本/11-23周一_双重顶M顶两次冲高后为何要看颈线_含课后练习.docx
 ./课程/本/11-24周二_形态与机构的关联.docx
 ./课程/本/11-25周三_三重底三次支撑测试怎样形成_含课后练习.docx
