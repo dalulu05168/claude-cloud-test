@@ -183,6 +183,7 @@
 ./tools/course-state.mjs
 ./tools/day-operations.mjs
 ./tools/desktop-doctor.mjs
+./tools/gap-check.mjs
 ./tools/health-check.mjs
 ./tools/inspect-mcp.ps1
 ./tools/inspect-mcp.sh

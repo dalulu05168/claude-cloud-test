@@ -639,7 +639,7 @@ try {
     '===== David先生 =====\n\n主力洗 盘，接着就能抄底。',
   ].join('\n\n');
   const lengthy = '37女：我还没看报告。想先看完今天的收盘数据，再回头对照前一个交易日的成交量。等报告出来我再看一次。🙂🤔';
-  const [chineseVoice, shortVoice, banAll, nonChinese, tooLong, hypeVoice, commonTerms] = run([
+  const [chineseVoice, shortVoice, banAll, nonChinese, tooLong, hypeVoice, commonTerms, colorBad, colorGood] = run([
     call(1, 'validate_whatsapp_voice', { body: mixed }),
     call(2, 'validate_whatsapp_voice', { body: '12男：要是收盘跌到这条线下呢？' }),
     call(3, 'validate_whatsapp_voice', { body: chineseBad }),
@@ -647,6 +647,8 @@ try {
     call(5, 'validate_whatsapp_voice', { body: lengthy }),
     call(6, 'validate_whatsapp_voice', { body: '12男：这下肯定 to the moon! 🚀' }),
     call(7, 'validate_whatsapp_voice', { body: '37女：我看了 BVB 的 BET 和成交量。' }),
+    call(8, 'validate_whatsapp_voice', { body: '12男：BET今天上涨，红色的上涨。' }),
+    call(9, 'validate_whatsapp_voice', { body: '12男：BET今天上涨，见绿；TLV下跌，飘红。' }),
   ]);
   assert.deepEqual(decode(chineseVoice), { passed: true, checked_messages: 5, member_messages: 1,
     needs_review: false, issues: [] });
@@ -661,6 +663,8 @@ try {
   assert.ok(decode(tooLong).issues.some((issue) => issue.type === 'member_length'));
   assert.equal(decode(hypeVoice).passed, false);
   assert.equal(decode(commonTerms).passed, true);
+  assert.ok(decode(colorBad).issues.some((issue) => issue.type === 'color'));
+  assert.equal(decode(colorGood).passed, true);
   const monday = '2026-11-23';
   const marketSource = 'https://www.nyse.com/trade/trading-information';
   const previousSession = { previous_us_session_date: '2026-11-20', previous_us_session_source: marketSource };

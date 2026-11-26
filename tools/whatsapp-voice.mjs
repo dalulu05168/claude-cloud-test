@@ -11,6 +11,7 @@ const chineseMarketSlang = [
   '回血', '躺赢', '打板', '连板', '闷杀', '追高', '天地板', '地天板', '砸开',
 ];
 const hype = /(?<![\p{L}\p{N}])(?:yyds|666|to the moon|all[- ]in|hodl|diamond hands|paper hands|pump(?: and| &) dump|următoarea rachetă|profit garantat|bani siguri)(?![\p{L}\p{N}])/iu;
+const colorMisuse = /红涨绿跌|红色(?:的)?(?:上涨|涨)|绿色(?:的)?(?:下跌|跌)|红盘|绿盘|(?:上涨|涨了|涨幅)[^，。！？；\n]{0,4}(?:飘红|收红|见红|变红)|(?:下跌|跌了|跌幅)[^，。！？；\n]{0,4}(?:飘绿|收绿|见绿|变绿)/u;
 const pictographic = /[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Presentation}]/u;
 const graphemes = new Intl.Segmenter('ro', { granularity: 'grapheme' });
 const punctuation = new Intl.Segmenter('ro', { granularity: 'sentence' });
@@ -44,6 +45,8 @@ function inspectVoice({ body }) {
     }
     const catchphrase = hype.exec(normalized);
     if (catchphrase) issue(block, 'block', 'hype', '请用具体的事实、条件或观察代替炒作和收益口号。', catchphrase[0]);
+    const color = colorMisuse.exec(normalized);
+    if (color) issue(block, 'block', 'color', '涨跌颜色按欧美习惯：涨用绿、跌用红。', color[0]);
     const words = message.match(foreignSentence) ?? [];
     const looksLikeForeignSpeech = words.length >= 3 || (words.length === 2 && words.some((word) => /^\p{Ll}+$/u.test(word)))
       || /^(?:păi|deci|mda)[.!?…]*$/iu.test(message);

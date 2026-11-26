@@ -12,7 +12,7 @@ d7eb487a28f07a59c60ab9404636f034ddd8e6a76d8a63ff6f056eae1947bc7e  ./.agents/skil
 a7f2c40e145bd43217e72db0c52af958eaa46c66146489e6a9b08befa8f1e6f0  ./.agents/skills/westcott-stop-gate/scripts/vendor/market-time.mjs
 27c87b2306703bd0e74658f0549e26d108afd5031f11700aa0f20e4c58361e8a  ./.agents/skills/westcott-stop-gate/scripts/vendor/news-image.mjs
 37a25100dc81b45ab1286597a829b5b1239e9c184781bb9877c390875aaf661d  ./.agents/skills/westcott-stop-gate/scripts/vendor/speech-format.mjs
-bc69ca0ba690fea688bee55726cf1f8917c5c34028db4286158db1047402d29f  ./.agents/skills/westcott-stop-gate/scripts/vendor/whatsapp-voice.mjs
+41ebb638e8e311418732f42f4af05ad19393d6c5f7269687950b072a41bdb9c3  ./.agents/skills/westcott-stop-gate/scripts/vendor/whatsapp-voice.mjs
 f3683e250dc905fe6f63bc8ddfe54b178949546d71d030413106471cdfecfc4a  ./.agents/skills/westcott-stop-gate/templates/stop-hook-settings.json
 84c75aee8a0e1516e7c633747ce198a1eb7ebeab61d0741cac63334c399b3024  ./.claude/agents/westcott-director.md
 a7ac11bb832b8445bad0ddaec9d5b525f8e5cc6dad21cddbf53be7e769c7bc7b  ./.claude/agents/westcott-editor.md
@@ -33,7 +33,7 @@ d7eb487a28f07a59c60ab9404636f034ddd8e6a76d8a63ff6f056eae1947bc7e  ./.claude/skil
 a7f2c40e145bd43217e72db0c52af958eaa46c66146489e6a9b08befa8f1e6f0  ./.claude/skills/westcott-stop-gate/scripts/vendor/market-time.mjs
 27c87b2306703bd0e74658f0549e26d108afd5031f11700aa0f20e4c58361e8a  ./.claude/skills/westcott-stop-gate/scripts/vendor/news-image.mjs
 37a25100dc81b45ab1286597a829b5b1239e9c184781bb9877c390875aaf661d  ./.claude/skills/westcott-stop-gate/scripts/vendor/speech-format.mjs
-bc69ca0ba690fea688bee55726cf1f8917c5c34028db4286158db1047402d29f  ./.claude/skills/westcott-stop-gate/scripts/vendor/whatsapp-voice.mjs
+41ebb638e8e311418732f42f4af05ad19393d6c5f7269687950b072a41bdb9c3  ./.claude/skills/westcott-stop-gate/scripts/vendor/whatsapp-voice.mjs
 f3683e250dc905fe6f63bc8ddfe54b178949546d71d030413106471cdfecfc4a  ./.claude/skills/westcott-stop-gate/templates/stop-hook-settings.json
 79030fffb1fb280cf35687cdf9a0305971cd669705c2692f30d8656f357bc56b  ./.codex/agents/westcott-director.toml
 4aa39c79b87cbe7a4455518bbbb56c10ca723243735e79463902c618338d358b  ./.codex/agents/westcott-editor.toml
@@ -48,7 +48,7 @@ fb0d0038d1be15654f1f928af4c459405483d87e4147c4acf57d79f254c6403c  ./.westcott-st
 51fd9cc0b2403ec0e38a00b46fc6daf87552e709e2bba1f9abe27fd29b05ac6a  ./.westcott-state/scene-2026-11-26-evening-000001.json
 b1b71c96843478053ced7df19b1f198cae6ec907465c2be43858962ed4f48d4b  ./11-26周四下午稿.txt
 4d946dde10244137350e94f2269f6f4197afa4add8aceba17473e33844ff7ff4  ./AGENTS.md
-b8b05454bacfda5434e7b2c2a9adba9b3af4f0b3d7af74c69c73afdc4db2be53  ./CLAUDE.md
+47cecf2750bc43ff79a89473243adbc70bfcf04b885ed92fd7492ff124aa7098  ./CLAUDE.md
 5611e6a1d59d6e5e31eadb770d93abcf5a12de8ff2eacb398aecc29ee51ba58f  ./README.md
 285c763ac5b4fd2a058782c0af3cbb96c74d4030a97fcc7a87db94c807dd9cc1  ./Start-Westcott.cmd
 087b3dbc9ddd51259425b4a3961df4de55a25b77267df5a4b3a90059d0b5f540  ./Start-Westcott.ps1
@@ -102,13 +102,13 @@ b91f7c2f2c07031fcce3514de7ef59e33433b909bc77e8d8272b32162ccbd5cb  ./reference/ag
 8fab6abf8092203e0f4dfa900d4388e7b86b777c67feed23ad788276980ddc25  ./reference/base-workflow/SKILL.md
 34482b58049fb8ca388135a8214017d52ffbc9f7298cdbd46b44febb612bcd48  ./reference/base-workflow/assets/logo-metadata.json
 1ab4957f02a9094eb45007c46eab1d37e99178b35b1b5b2f25eafa24b80ed332  ./reference/base-workflow/assets/westcott-logo-original.png
-eddd1a8a0f680d4a26f81b0ccfe1a1bed4d3c047949651e1b6c0da970a1f2326  ./reference/base-workflow/manifest.json
+a8a63835ec3274666434e13f136016bffbe5d468e2ea6ff3f950083173de6602  ./reference/base-workflow/manifest.json
 aca576cfea3c98e1f39533916450d239265693feed1d930f5a579dc56a2c44a3  ./reference/base-workflow/references/acceptance.md
-7e3c1697dadd7405931bb8bddc9c1e2a884007991c3a34704dc4deee8564bc64  ./reference/base-workflow/references/assistant.md
+9fa23532860ff752437049a67cb9c2904644bb6c027c3ffb613feacd58b4aeb8  ./reference/base-workflow/references/assistant.md
 699f09d4bdc238b87beaae723ef2f08d54d3d745d8759705f8c7e823dcda2b72  ./reference/base-workflow/references/broadcast-format.md
 cc8be6e74533870848bf86edfb96dff74e5de3599879d7202452301e3d342254  ./reference/base-workflow/references/contracts.md
-964784820acd0c1215cb8bf293b6c21bc3b0ed72091cc077be635257853bef20  ./reference/base-workflow/references/director.md
-2a19a947fea98e3b3a762f07e26b54de6fc57aa874cc2452743435ffd92bb7f1  ./reference/base-workflow/references/evening.md
+4239dbaecc892bc260d776fc3da4cfa5a3519157987fad9b4c89e0f9f7d0d7e6  ./reference/base-workflow/references/director.md
+1c4befaf9b3e25be17a8046dd32d20c444ed4176ca7a6880a512d43cdfdae791  ./reference/base-workflow/references/evening.md
 d7622ce9912446ae1d1839277b47929df39529ed272e4ef82df5b98f096b69b8  ./reference/base-workflow/references/evening/contract.md
 26cfb76deed098d85fbd2de4cce50d879aed674fc6226d7e394b9cbb5b7e318f  ./reference/base-workflow/references/evening/control.md
 93a8890f4de5bb3f926f443e934ec56cd77dde332ac40403b573b81c7e9d94fe  ./reference/base-workflow/references/evening/course-state-template.json
@@ -129,7 +129,7 @@ e952f0ebd5e5811bc82a62cdbeec03434dfc7e484b434f7785c27b739cb16f83  ./reference/ba
 5a7b2d3003fb539dd56f5e616eb7ca61d1d5496d9416c8ca50855181ff344a58  ./reference/base-workflow/references/evening/teacher.md
 089d17e69517998d9d0a1cd1de52f454976c11ae07a2c18baeaeff90fb42e28f  ./reference/base-workflow/references/handoff-template.json
 afed588ceccdd4fcb41f998d8cd6d2bcfcf96f64a9658dda55f66df1620a88fc  ./reference/base-workflow/references/maintenance.md
-8a8a42acc7b42031b82e6f56f27544594362662fd2bce61a4aa9d3545bb34f64  ./reference/base-workflow/references/members.md
+15ab894b10ff146fc5bc6caf286ad16eb346b3afb12bf8632050523d408e8d1b  ./reference/base-workflow/references/members.md
 7149fd2d33e7b6656dfd300e30b36a9a6eef04b733aa94439a48e33f29533dbd  ./reference/base-workflow/references/memory.md
 2288f8b8a4d16f82cebb2bda71443fc807ceb53774d40587850a090b2c64c0fb  ./reference/base-workflow/references/roster.json
 86fd89ae90d21df0639af2639e166e11320f0b42009c797bfdedd13df588e14f  ./reference/base-workflow/references/runtime.md
@@ -183,6 +183,7 @@ b2bae6510e6317021829cf4937549c89f15bd9f01996a9065771fab2d2b38553  ./tools/confir
 a7dace059fbd02b1155a506c061e12cf53a916ff1c7fa7d0de9859609f8f1a97  ./tools/course-state.mjs
 d48f5aa399a1f4e573fdb0792d5907d252c60f11e23493251005895535402343  ./tools/day-operations.mjs
 c5919bf23667036ff92d94f9df7a8477e2c923b4d933f4537b6dec36aef1174d  ./tools/desktop-doctor.mjs
+ac0431ae6dd0026d00f62bb1d97aa2367ae20cd7273037e9c3680c1e7d796415  ./tools/gap-check.mjs
 e7dc18774869dc345f77bff7dd66b5e1e5b155a33567d856a92fdf1121889efa  ./tools/health-check.mjs
 6a964724d2987fdb151de1b6ceb693e86afae13cd2cb5d457a213da3a9d536bf  ./tools/inspect-mcp.ps1
 7f77476958d4d6e7ce6dd4d970647a0ebbb715977d199bc777737c2a0ce72cf9  ./tools/inspect-mcp.sh
@@ -196,12 +197,12 @@ a7f2c40e145bd43217e72db0c52af958eaa46c66146489e6a9b08befa8f1e6f0  ./tools/market
 37e1d5d09ebc899e36e638b01a21eda1fd88b6478bf56ee21b392656252109a9  ./tools/news-image.mjs
 4137ccb10267d692b811e471172a7a108603314d0282a3e493f06917de81b448  ./tools/scene-checkpoint.mjs
 41df92bfa4a05ffc633b47b26f30c8b55354bbee10c02fda1ada42be523c1836  ./tools/scene-rules.mjs
-370afd2548e4f64aa4e51fea5df78d260597f121fc33ea1ebff85d6b2b7cbcb3  ./tools/self-test.mjs
+042c393b05064ebd392b557722c4a48478fe2300914ebd32c0dfef1d15361225  ./tools/self-test.mjs
 37a25100dc81b45ab1286597a829b5b1239e9c184781bb9877c390875aaf661d  ./tools/speech-format.mjs
 34d6900f0c156e6620bb2210a380f3db4cf57353ac8d8f6576b79d24b6230500  ./tools/state-revisions.mjs
 dbd3c4c0416f1316a040edee6efa0aba54269e55f7b29b7df09a1a5470b41462  ./tools/stop-gate.mjs
 6995495e239a63b8b832996ef5494a870f65bd76512e886786ce75341a20e796  ./tools/verify-hooks.mjs
-bc69ca0ba690fea688bee55726cf1f8917c5c34028db4286158db1047402d29f  ./tools/whatsapp-voice.mjs
+41ebb638e8e311418732f42f4af05ad19393d6c5f7269687950b072a41bdb9c3  ./tools/whatsapp-voice.mjs
 9ff114a473b0a17012505b06f3caaa6f9c020182bd9688bfc80522671c00cf5c  ./导出安装说明.md
 3dc96840c91913212abfeb81902a8166972efea2470b59679fc6f98d7ef6e62c  ./强化配置变更说明.md
 affa8a3590728ada6f664ed955088d05dd4c3ee99fa43dc00f480e21197e9af9  ./手机云端使用说明.md
