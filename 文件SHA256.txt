@@ -102,7 +102,7 @@ b91f7c2f2c07031fcce3514de7ef59e33433b909bc77e8d8272b32162ccbd5cb  ./reference/ag
 8fab6abf8092203e0f4dfa900d4388e7b86b777c67feed23ad788276980ddc25  ./reference/base-workflow/SKILL.md
 34482b58049fb8ca388135a8214017d52ffbc9f7298cdbd46b44febb612bcd48  ./reference/base-workflow/assets/logo-metadata.json
 1ab4957f02a9094eb45007c46eab1d37e99178b35b1b5b2f25eafa24b80ed332  ./reference/base-workflow/assets/westcott-logo-original.png
-b1cc2aa33359c4d7823f27ed02984071ff950dd61c840eba9da76d9069287f23  ./reference/base-workflow/manifest.json
+8179644e018681f2530d9b570204eafe7429ac4a5a367ef5e27d7ae7ba232cfe  ./reference/base-workflow/manifest.json
 aca576cfea3c98e1f39533916450d239265693feed1d930f5a579dc56a2c44a3  ./reference/base-workflow/references/acceptance.md
 9fa23532860ff752437049a67cb9c2904644bb6c027c3ffb613feacd58b4aeb8  ./reference/base-workflow/references/assistant.md
 699f09d4bdc238b87beaae723ef2f08d54d3d745d8759705f8c7e823dcda2b72  ./reference/base-workflow/references/broadcast-format.md
@@ -129,7 +129,7 @@ e952f0ebd5e5811bc82a62cdbeec03434dfc7e484b434f7785c27b739cb16f83  ./reference/ba
 5a7b2d3003fb539dd56f5e616eb7ca61d1d5496d9416c8ca50855181ff344a58  ./reference/base-workflow/references/evening/teacher.md
 089d17e69517998d9d0a1cd1de52f454976c11ae07a2c18baeaeff90fb42e28f  ./reference/base-workflow/references/handoff-template.json
 afed588ceccdd4fcb41f998d8cd6d2bcfcf96f64a9658dda55f66df1620a88fc  ./reference/base-workflow/references/maintenance.md
-71bb8b4d00b6dd34af3db43017e5d3d806a282095ab7a9853b61fc79b661b37f  ./reference/base-workflow/references/members.md
+c39b98992022b5dc3553b1514e892a78b3c2f76df87cd43ce91bc6e78eb2d863  ./reference/base-workflow/references/members.md
 7149fd2d33e7b6656dfd300e30b36a9a6eef04b733aa94439a48e33f29533dbd  ./reference/base-workflow/references/memory.md
 2288f8b8a4d16f82cebb2bda71443fc807ceb53774d40587850a090b2c64c0fb  ./reference/base-workflow/references/roster.json
 86fd89ae90d21df0639af2639e166e11320f0b42009c797bfdedd13df588e14f  ./reference/base-workflow/references/runtime.md
@@ -160,7 +160,7 @@ a6a8271986f8262a22b3cc72c3801a831e9934977aa723c66ddc8d2bec7f266c  ./reference/ba
 5d11a874d0a8077447c699c87ad0128d094499f0a01e846d25f35443db11756c  ./reference/base-workflow/scripts/silence_check.py
 c13ae8d32b0785e7d2c074b13da0c070e48c0b29c3f68d79b83cdba3c0fbc861  ./reference/base-workflow/tests/__pycache__/test_evening.cpython-313.pyc
 5115be79620c055867f37a24a2912164e79bb0993aa67a63a44406e1013df13e  ./reference/base-workflow/tests/__pycache__/test_memory.cpython-313.pyc
-7bd9a54feb5a3dc24880b553e7a3cd5876562cba1262eef38e61b745c620cc2a  ./reference/base-workflow/tests/__pycache__/test_review.cpython-313.pyc
+a70f5848078bb77edd40767567e2070988dc55eb669fe3e620cf52f0b048a425  ./reference/base-workflow/tests/__pycache__/test_review.cpython-313.pyc
 52ce0c91c70934c9bc66e52660802c23c7a100792992d1cfdba22b1001497ba0  ./reference/base-workflow/tests/__pycache__/test_session.cpython-313.pyc
 2a8cf795300cdadb897815a19be8ef4adff7ac4404f1da3134c9057c6083b632  ./reference/base-workflow/tests/__pycache__/test_silence.cpython-313.pyc
 d5d92b9155e870805dffecf28197ed3aed6f145f3b0b0b0445060164d847f60e  ./reference/base-workflow/tests/__pycache__/test_tools.cpython-313.pyc
