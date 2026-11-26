@@ -171,7 +171,8 @@ export function createNewsBroadcastTools({ text, schema, dateField, validateDate
       }
       if (starts_scene) {
         const greeting = { morning: '早上', afternoon: '下午', evening: '晚上' }[session];
-        const welcome = `🌤 大家${greeting}好！欢迎回到 ELLERY WESTCOTT 社群！`;
+        const sun = session === 'evening' ? '🌙' : '🌤';
+        const welcome = `${sun} 大家${greeting}好！欢迎回到 ELLERY WESTCOTT 社群！`;
         const first = blocks[0];
         if (first?.label !== '===== 资讯助理 =====' || first.lines.find((line) => line.trim())?.trim() !== welcome) {
           issues.push({ line: first?.line ?? 1, message: `开群首句应为「${welcome}」。` });

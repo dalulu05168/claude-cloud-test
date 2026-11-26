@@ -102,12 +102,12 @@ b91f7c2f2c07031fcce3514de7ef59e33433b909bc77e8d8272b32162ccbd5cb  ./reference/ag
 8fab6abf8092203e0f4dfa900d4388e7b86b777c67feed23ad788276980ddc25  ./reference/base-workflow/SKILL.md
 34482b58049fb8ca388135a8214017d52ffbc9f7298cdbd46b44febb612bcd48  ./reference/base-workflow/assets/logo-metadata.json
 1ab4957f02a9094eb45007c46eab1d37e99178b35b1b5b2f25eafa24b80ed332  ./reference/base-workflow/assets/westcott-logo-original.png
-bd993c411fdd0a36c435ebb8280ec25dc5508ed0906d9678bdc7f3830b0e996f  ./reference/base-workflow/manifest.json
+b2210b16fcd1a0e1a87316ee3bc63ac2522468da0bd6b80a1eac47a365217592  ./reference/base-workflow/manifest.json
 aca576cfea3c98e1f39533916450d239265693feed1d930f5a579dc56a2c44a3  ./reference/base-workflow/references/acceptance.md
 7e3c1697dadd7405931bb8bddc9c1e2a884007991c3a34704dc4deee8564bc64  ./reference/base-workflow/references/assistant.md
 699f09d4bdc238b87beaae723ef2f08d54d3d745d8759705f8c7e823dcda2b72  ./reference/base-workflow/references/broadcast-format.md
 cc8be6e74533870848bf86edfb96dff74e5de3599879d7202452301e3d342254  ./reference/base-workflow/references/contracts.md
-eff30e456d5619a4c54990e360d089b32a51c34d6e4cf18b2bfc1c2ac362aa05  ./reference/base-workflow/references/director.md
+964784820acd0c1215cb8bf293b6c21bc3b0ed72091cc077be635257853bef20  ./reference/base-workflow/references/director.md
 2a19a947fea98e3b3a762f07e26b54de6fc57aa874cc2452743435ffd92bb7f1  ./reference/base-workflow/references/evening.md
 d7622ce9912446ae1d1839277b47929df39529ed272e4ef82df5b98f096b69b8  ./reference/base-workflow/references/evening/contract.md
 26cfb76deed098d85fbd2de4cce50d879aed674fc6226d7e394b9cbb5b7e318f  ./reference/base-workflow/references/evening/control.md
@@ -192,7 +192,7 @@ cad9b8d8f4d5d258799f79b986fad1965ba5222f1fa6dd95d91ad44e0618a382  ./tools/market
 a7f2c40e145bd43217e72db0c52af958eaa46c66146489e6a9b08befa8f1e6f0  ./tools/market-time.mjs
 9cff7336a3884225791ec1c606b98c34be89cae955f9af1da12f59457f48bfb3  ./tools/member-cast.mjs
 378013f381b26a175e7ed1fca91362c0fd92e8a043b0a92352db899ec272b33b  ./tools/mobile-handoff.mjs
-b0a23ca92fbd191aa91636cd7c11a5029e170c0adf266cc0c6d9b9518dd3e527  ./tools/news-broadcast.mjs
+721456ea05c414fc4317dfe0ffcfc7569094dacbaaf576032dccbc79d90376e1  ./tools/news-broadcast.mjs
 37e1d5d09ebc899e36e638b01a21eda1fd88b6478bf56ee21b392656252109a9  ./tools/news-image.mjs
 4137ccb10267d692b811e471172a7a108603314d0282a3e493f06917de81b448  ./tools/scene-checkpoint.mjs
 41df92bfa4a05ffc633b47b26f30c8b55354bbee10c02fda1ada42be523c1836  ./tools/scene-rules.mjs
