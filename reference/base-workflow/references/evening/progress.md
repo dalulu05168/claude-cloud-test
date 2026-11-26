@@ -1,0 +1,7 @@
+# 课程进度与跨聊天交接
+首次使用复制[空白检查点](course-state-template.json)，在用户可保存的输出位置填写；模板中的null和空数组表示未知，不表示未授课或没有持仓。
+仅从实际材料填写last_completed_lesson、understanding_evidence和history；planned_next不等于已完成。四阶段名称沿用原稿。
+保存时先检查文件确实写入，再提供文件给用户。下一聊天请用户附上最新检查点及相关定稿；技能文件自身不保存动态状态。状态冲突先说明来源与版本，不自动覆盖已确认历史。
+课程时区未知时保留null；可先规划内容，定日期和星期相关任务前再确认。
+
+合并后采用原memory.md/session.md作为持久状态唯一权威；本JSON是交换模板，不自动形成第二个进度库。若用户授权保存课程进度，将模板内容序列化为progress类型记录的text，key建议progress.evening.course，保留来源与candidate/confirmed状态。不得给project_session.session塞入未知字段。恢复时精确读取该课程记录并与已采用课稿对应，冲突先列差异，不按文件日期猜。无保存授权时只提供候选交接，不写真实项目记忆。

@@ -1,0 +1,177 @@
+[
+  {
+    "protocol_version": "1.0",
+    "message_type": "task.request",
+    "message_id": "daily-2026-11-23-research-01",
+    "correlation_id": "daily-2026-11-23",
+    "trace_id": "trace-2026-11-23-a1",
+    "run_id": "daily-2026-11-23",
+    "task_date": "2026-11-23",
+    "timezone": "Asia/Shanghai",
+    "sender": "westcott-orchestrator",
+    "recipient": "research-agent",
+    "task_type": "collect_and_verify",
+    "stage": "research",
+    "ruleset_version": "2026.11.1",
+    "created_at": "2026-11-23T00:02:00Z",
+    "deadline_at": "2026-11-23T00:17:00Z",
+    "attempt": 1,
+    "max_attempts": 3,
+    "idempotency_key": "daily-2026-11-23:research",
+    "input_artifacts": [
+      {
+        "artifact_id": "calendar-2026-11-23",
+        "kind": "content_calendar",
+        "uri": "state://runs/daily-2026-11-23/content-calendar.json",
+        "media_type": "application/json",
+        "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "size_bytes": 2048,
+        "schema_id": "content-calendar-v1",
+        "created_at": "2026-11-22T15:00:00Z",
+        "created_by": "westcott-orchestrator"
+      }
+    ],
+    "constraints": {
+      "source_policy": "approved_sources_only",
+      "output_language": "zh-CN",
+      "required_sections": ["facts", "sources", "uncertainties"],
+      "prohibited_claim_categories": ["unverified-claims"],
+      "hard_rule_ids": ["SOURCE_TRACEABILITY", "NO_UNSUPPORTED_FACTS"],
+      "max_external_sources": 12,
+      "deadline_at": "2026-11-23T00:17:00Z",
+      "human_review_required": true,
+      "allow_external_tool_calls": true
+    },
+    "expected_output": {
+      "schema_id": "research-result-v1",
+      "artifact_kinds": ["research_packet"],
+      "require_structured_result": true
+    },
+    "instructions": "为当日内容日历中的主题收集并核实事实。每条关键事实必须关联来源 URL 和发布时间。将不确定信息单独标注，不要将推测写为事实。"
+  },
+  {
+    "protocol_version": "1.0",
+    "message_type": "task.result",
+    "message_id": "daily-2026-11-23-research-01-result",
+    "in_reply_to": "daily-2026-11-23-research-01",
+    "correlation_id": "daily-2026-11-23",
+    "trace_id": "trace-2026-11-23-a1",
+    "run_id": "daily-2026-11-23",
+    "task_date": "2026-11-23",
+    "timezone": "Asia/Shanghai",
+    "agent": "research-agent",
+    "stage": "research",
+    "ruleset_version": "2026.11.1",
+    "status": "succeeded",
+    "summary": "完成候选事实收集与来源核验；未发现阻断项。",
+    "output_artifacts": [
+      {
+        "artifact_id": "research-packet-2026-11-23-v1",
+        "kind": "research_packet",
+        "uri": "state://runs/daily-2026-11-23/research.json",
+        "media_type": "application/json",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "size_bytes": 5312,
+        "schema_id": "research-result-v1",
+        "created_at": "2026-11-23T00:09:00Z",
+        "created_by": "research-agent"
+      }
+    ],
+    "issues": [],
+    "next_action": "continue",
+    "metrics": {
+      "input_artifact_count": 1,
+      "output_artifact_count": 1,
+      "verified_source_count": 4,
+      "elapsed_ms": 420000,
+      "custom": { "unverified_claim_count": 0 }
+    },
+    "started_at": "2026-11-23T00:02:10Z",
+    "finished_at": "2026-11-23T00:09:10Z"
+  },
+  {
+    "protocol_version": "1.0",
+    "message_type": "task.result",
+    "message_id": "daily-2026-11-23-edit-02-result",
+    "in_reply_to": "daily-2026-11-23-edit-02",
+    "run_id": "daily-2026-11-23",
+    "task_date": "2026-11-23",
+    "timezone": "Asia/Shanghai",
+    "agent": "editing-agent",
+    "stage": "editing",
+    "ruleset_version": "2026.11.1",
+    "status": "blocked",
+    "summary": "编辑阶段发现一条事实缺少来源定位，需研究 Agent 补充证据后再继续。",
+    "output_artifacts": [],
+    "issues": [
+      {
+        "code": "SOURCE_REFERENCE_MISSING",
+        "severity": "block",
+        "message": "第 2 段中的统计数据没有对应的来源标识。",
+        "location": { "artifact_id": "draft-2026-11-23-v2", "path": "draft.md", "line": 8 },
+        "suggested_fix": "向研究阶段请求该统计数据的原始来源，或删除该数据。",
+        "evidence_artifact_ids": ["draft-2026-11-23-v2"]
+      }
+    ],
+    "next_action": "revise",
+    "started_at": "2026-11-23T00:15:00Z",
+    "finished_at": "2026-11-23T00:16:20Z"
+  },
+  {
+    "protocol_version": "1.0",
+    "message_type": "state.event",
+    "message_id": "daily-2026-11-23-event-research-complete-01",
+    "run_id": "daily-2026-11-23",
+    "task_date": "2026-11-23",
+    "timestamp": "2026-11-23T00:09:11Z",
+    "actor": "westcott-orchestrator",
+    "event_type": "stage.changed",
+    "stage": "research",
+    "status": "passed",
+    "from_state": "researching",
+    "to_state": "researched",
+    "attempt": 1,
+    "correlation_id": "daily-2026-11-23"
+  },
+  {
+    "protocol_version": "1.0",
+    "message_type": "run.manifest",
+    "run_id": "daily-2026-11-23",
+    "task_date": "2026-11-23",
+    "timezone": "Asia/Shanghai",
+    "state": "researched",
+    "current_stage": "writing",
+    "ruleset_version": "2026.11.1",
+    "created_at": "2026-11-23T00:00:00Z",
+    "updated_at": "2026-11-23T00:09:11Z",
+    "attempts": { "research": 1, "writing": 0, "editing": 0, "validation": 0, "docs": 0 },
+    "stages": {
+      "research": {
+        "status": "succeeded",
+        "attempt": 1,
+        "last_message_id": "daily-2026-11-23-research-01-result",
+        "started_at": "2026-11-23T00:02:10Z",
+        "finished_at": "2026-11-23T00:09:10Z",
+        "artifact_ids": ["research-packet-2026-11-23-v1"]
+      },
+      "writing": { "status": "not_started", "attempt": 0 },
+      "editing": { "status": "not_started", "attempt": 0 },
+      "validation": { "status": "not_started", "attempt": 0 },
+      "docs": { "status": "not_started", "attempt": 0 }
+    },
+    "artifacts": [
+      {
+        "artifact_id": "research-packet-2026-11-23-v1",
+        "kind": "research_packet",
+        "uri": "state://runs/daily-2026-11-23/research.json",
+        "media_type": "application/json",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "size_bytes": 5312,
+        "schema_id": "research-result-v1",
+        "created_at": "2026-11-23T00:09:00Z",
+        "created_by": "research-agent"
+      }
+    ],
+    "google_docs": { "status": "not_started" }
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "task_date": null,
+  "timezone": "Europe/Bucharest",
+  "source_ref": null,
+  "source_revision": null,
+  "last_valid_line": null,
+  "completed_count": null,
+  "next_step": null,
+  "stop_after": null,
+  "unresolved": [],
+  "content_status": "candidate",
+  "write_receipt": null,
+  "sent_receipt": null
+}

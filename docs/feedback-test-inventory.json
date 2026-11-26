@@ -1,0 +1,35 @@
+{
+  "inventory_version": "westcott-test-inventory-v1",
+  "tests": [
+    {
+      "test_id": "stop-gate-node-tests",
+      "covers": ["format-gate", "image-url-validation", "sensitive-language", "logging-redaction"],
+      "command": "node --test .claude/skills/westcott-stop-gate/scripts/stop-gate.test.mjs .claude/skills/westcott-stop-gate/scripts/analyze-stop-gate.test.mjs",
+      "expected": "pass"
+    },
+    {
+      "test_id": "runtime-protocol-unit-tests",
+      "covers": ["schema-validation", "routing-allowlist", "state-transitions", "artifact-sha256", "idempotency", "retry-limit"],
+      "command": "PYTHONPATH=orchestration python -m unittest discover -s orchestration -p 'test_*.py' -v",
+      "expected": "pass"
+    },
+    {
+      "test_id": "feedback-evidence-and-candidate-tests",
+      "covers": ["minimum-sample-gate", "issue-repeat-threshold", "evidence-linkage", "candidate-isolation", "manual-approval-required"],
+      "command": "PYTHONPATH=orchestration python -m unittest discover -s orchestration -p 'test_*.py' -v",
+      "expected": "pass"
+    },
+    {
+      "test_id": "google-docs-offline-tests",
+      "covers": ["docx-formatting", "unicode", "run-id-idempotency", "hash-conflict-fail-closed"],
+      "command": "PYTHONPATH=automation python -m unittest discover -s automation -p 'test_*.py' -v",
+      "expected": "pass"
+    },
+    {
+      "test_id": "daily-runner-fake-adapter-integration",
+      "covers": ["daily-run-idempotency", "docs-retry-without-agent-regeneration"],
+      "command": "PYTHONPATH=automation python -m unittest discover -s automation -p 'test_*.py' -v",
+      "expected": "pass"
+    }
+  ]
+}

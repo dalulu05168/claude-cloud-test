@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "westcott-state": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["${CLAUDE_PROJECT_DIR:-.}/tools/course-state.mjs"]
+    }
+  }
+}

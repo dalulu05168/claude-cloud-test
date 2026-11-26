@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:westcott:feedback-proposal:1.0",
+  "title": "Westcott feedback evaluation proposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["proposal_version", "evaluation_id", "source_summary_sha256", "active_rules_version", "active_rules_sha256", "decision", "findings", "proposals", "uncertainties", "active_rules_modified"],
+  "properties": {
+    "proposal_version": {"const": "westcott-feedback-proposal-v1"},
+    "evaluation_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "source_summary_sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+    "active_rules_version": {"type": "string", "minLength": 1, "maxLength": 64},
+    "active_rules_sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+    "decision": {"type": "string", "enum": ["insufficient_evidence", "no_change", "review_required"]},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["finding_id", "signal_type", "signal_key", "observed_value", "evidence_run_ids", "likely_cause", "confidence"],
+        "properties": {
+          "finding_id": {"type": "string", "minLength": 1, "maxLength": 128},
+          "signal_type": {"type": "string", "enum": ["repeated_issue_code", "low_score_dimension"]},
+          "signal_key": {"type": "string", "minLength": 1, "maxLength": 128},
+          "observed_value": {"type": "string", "minLength": 1, "maxLength": 1000},
+          "evidence_run_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 3, "maxLength": 128}},
+          "likely_cause": {"type": "string", "minLength": 1, "maxLength": 2000},
+          "confidence": {"type": "string", "enum": ["low", "medium", "high"]}
+        }
+      }
+    },
+    "proposals": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["candidate_id", "target_rule_id", "change_type", "before", "proposed_after", "rationale", "expected_benefit", "risks", "scope", "evidence_run_ids", "tests_required", "rollback_to"],
+        "properties": {
+          "candidate_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$", "maxLength": 128},
+          "target_rule_id": {"type": "string", "pattern": "^[A-Z][A-Z0-9_:-]*$", "maxLength": 96},
+          "change_type": {"type": "string", "enum": ["clarify", "add", "narrow", "retire"]},
+          "before": {"type": "string", "maxLength": 8000},
+          "proposed_after": {"type": "string", "minLength": 1, "maxLength": 8000},
+          "rationale": {"type": "string", "minLength": 1, "maxLength": 3000},
+          "expected_benefit": {"type": "string", "minLength": 1, "maxLength": 1000},
+          "risks": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1, "maxLength": 1000}},
+          "scope": {"type": "string", "minLength": 1, "maxLength": 1000},
+          "evidence_run_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 3, "maxLength": 128}},
+          "tests_required": {
+            "type": "array", "minItems": 2,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["test_id", "input_summary", "expected"],
+              "properties": {
+                "test_id": {"type": "string", "minLength": 1, "maxLength": 128},
+                "input_summary": {"type": "string", "minLength": 1, "maxLength": 1000},
+                "expected": {"type": "string", "enum": ["pass", "block"]}
+              }
+            }
+          },
+          "rollback_to": {"type": "string", "minLength": 1, "maxLength": 64}
+        }
+      }
+    },
+    "uncertainties": {"type": "array", "items": {"type": "string", "maxLength": 1000}},
+    "active_rules_modified": {"const": false}
+  },
+  "allOf": [
+    {"if": {"properties": {"decision": {"const": "insufficient_evidence"}}, "required": ["decision"]}, "then": {"properties": {"proposals": {"maxItems": 0}}}},
+    {"if": {"properties": {"decision": {"const": "no_change"}}, "required": ["decision"]}, "then": {"properties": {"proposals": {"maxItems": 0}}}},
+    {"if": {"properties": {"decision": {"const": "review_required"}}, "required": ["decision"]}, "then": {"properties": {"proposals": {"minItems": 1}}}}
+  ]
+}

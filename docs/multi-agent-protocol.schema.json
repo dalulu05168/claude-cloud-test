@@ -1,0 +1,459 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:westcott:multi-agent-protocol:1.0",
+  "title": "Westcott Multi-Agent Communication Protocol 1.0",
+  "description": "总控 Agent、研究/撰稿/编辑子 Agent 之间的任务请求、回执、状态事件和运行状态快照。根 schema 校验单条协议对象。",
+  "oneOf": [
+    { "$ref": "#/$defs/taskRequest" },
+    { "$ref": "#/$defs/taskResult" },
+    { "$ref": "#/$defs/stateEvent" },
+    { "$ref": "#/$defs/runManifest" }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "agentId": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Agent 稳定 ID，不使用显示名称或自然语言角色描述。"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$",
+      "description": "同一业务运行全程不变的幂等标识，例如 daily-2026-11-23。"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "业务日期，使用 ISO 8601 YYYY-MM-DD。"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "带时区的 RFC 3339 时间戳，建议统一 UTC。"
+    },
+    "timezone": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9_+.-]+(/[A-Za-z0-9_+.-]+)*$",
+      "description": "IANA 时区名，例如 Asia/Shanghai。"
+    },
+    "rulesetVersion": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]*$",
+      "description": "不可变规则版本标识；每次 Agent handoff 必须保持一致。"
+    },
+    "stage": {
+      "type": "string",
+      "enum": ["research", "writing", "editing", "validation", "evaluation", "docs"]
+    },
+    "artifactKind": {
+      "type": "string",
+      "enum": [
+        "content_calendar",
+        "research_packet",
+        "draft",
+        "edit_report",
+        "validation_report",
+        "google_doc_record",
+        "feedback_record",
+        "rule_candidate",
+        "other"
+      ]
+    },
+    "artifactRef": {
+      "type": "object",
+      "description": "不可变产物引用；URI 可以是运行时认可的 state://、file://、gs:// 或 https:// 引用。",
+      "additionalProperties": false,
+      "required": ["artifact_id", "kind", "uri", "media_type", "sha256"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "kind": { "$ref": "#/$defs/artifactKind" },
+        "uri": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^(state|file|https?|gs)://"
+        },
+        "media_type": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 127,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&^_.+-]*$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "size_bytes": { "type": "integer", "minimum": 0 },
+        "schema_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "created_at": { "$ref": "#/$defs/timestamp" },
+        "created_by": { "$ref": "#/$defs/agentId" }
+      }
+    },
+    "issueLocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/identifier" },
+        "path": { "type": "string", "minLength": 1, "maxLength": 512 },
+        "json_pointer": { "type": "string", "maxLength": 512 },
+        "line": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 }
+      },
+      "anyOf": [
+        { "required": ["artifact_id"] },
+        { "required": ["path"] },
+        { "required": ["json_pointer"] }
+      ]
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[A-Z][A-Z0-9_:-]*$"
+        },
+        "severity": { "type": "string", "enum": ["info", "warning", "error", "block"] },
+        "message": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "location": { "$ref": "#/$defs/issueLocation" },
+        "suggested_fix": { "type": "string", "maxLength": 2000 },
+        "evidence_artifact_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identifier" }
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_policy": {
+          "type": "string",
+          "enum": ["approved_sources_only", "trusted_sources_preferred", "user_provided_only", "no_external_sources"]
+        },
+        "output_language": { "type": "string", "minLength": 2, "maxLength": 32 },
+        "target_word_count": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "minimum": { "type": "integer", "minimum": 0 },
+            "maximum": { "type": "integer", "minimum": 1 }
+          },
+          "anyOf": [{ "required": ["minimum"] }, { "required": ["maximum"] }]
+        },
+        "required_sections": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 128 }
+        },
+        "prohibited_claim_categories": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 128 }
+        },
+        "hard_rule_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/identifier" }
+        },
+        "max_external_sources": { "type": "integer", "minimum": 0, "maximum": 500 },
+        "deadline_at": { "$ref": "#/$defs/timestamp" },
+        "human_review_required": { "type": "boolean" },
+        "allow_external_tool_calls": { "type": "boolean" }
+      }
+    },
+    "expectedOutput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_id", "artifact_kinds"],
+      "properties": {
+        "schema_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "artifact_kinds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/artifactKind" }
+        },
+        "require_structured_result": { "type": "boolean" }
+      }
+    },
+    "taskRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_version", "message_type", "message_id", "run_id", "task_date", "timezone",
+        "sender", "recipient", "task_type", "stage", "ruleset_version", "created_at", "attempt",
+        "max_attempts", "idempotency_key", "input_artifacts", "constraints", "expected_output", "instructions"
+      ],
+      "properties": {
+        "protocol_version": { "const": "1.0" },
+        "message_type": { "const": "task.request" },
+        "message_id": { "$ref": "#/$defs/identifier" },
+        "correlation_id": { "$ref": "#/$defs/identifier" },
+        "trace_id": { "$ref": "#/$defs/identifier" },
+        "parent_message_id": { "$ref": "#/$defs/identifier" },
+        "run_id": { "$ref": "#/$defs/runId" },
+        "task_date": { "$ref": "#/$defs/date" },
+        "timezone": { "$ref": "#/$defs/timezone" },
+        "sender": { "const": "westcott-orchestrator" },
+        "recipient": { "$ref": "#/$defs/agentId" },
+        "task_type": {
+          "type": "string",
+          "enum": ["collect_and_verify", "draft_content", "edit_content", "validate_content", "publish_google_doc", "evaluate_feedback"]
+        },
+        "stage": { "$ref": "#/$defs/stage" },
+        "ruleset_version": { "$ref": "#/$defs/rulesetVersion" },
+        "created_at": { "$ref": "#/$defs/timestamp" },
+        "deadline_at": { "$ref": "#/$defs/timestamp" },
+        "attempt": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "max_attempts": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "idempotency_key": { "$ref": "#/$defs/identifier" },
+        "input_artifacts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/artifactRef" }
+        },
+        "constraints": { "$ref": "#/$defs/constraints" },
+        "expected_output": { "$ref": "#/$defs/expectedOutput" },
+        "instructions": { "type": "string", "minLength": 1, "maxLength": 12000 },
+        "extensions": {
+          "type": "object",
+          "patternProperties": { "^x-[a-z0-9][a-z0-9_.-]*$": {} },
+          "additionalProperties": false
+        }
+      },
+      "allOf": [
+        { "if": { "properties": { "stage": { "const": "research" } }, "required": ["stage"] }, "then": { "properties": { "task_type": { "const": "collect_and_verify" } } } },
+        { "if": { "properties": { "stage": { "const": "writing" } }, "required": ["stage"] }, "then": { "properties": { "task_type": { "const": "draft_content" } } } },
+        { "if": { "properties": { "stage": { "const": "editing" } }, "required": ["stage"] }, "then": { "properties": { "task_type": { "const": "edit_content" } } } },
+        { "if": { "properties": { "stage": { "const": "validation" } }, "required": ["stage"] }, "then": { "properties": { "task_type": { "const": "validate_content" } } } },
+        { "if": { "properties": { "stage": { "const": "docs" } }, "required": ["stage"] }, "then": { "properties": { "task_type": { "const": "publish_google_doc" } } } },
+        { "if": { "properties": { "stage": { "const": "evaluation" } }, "required": ["stage"] }, "then": { "properties": { "task_type": { "const": "evaluate_feedback" } } } }
+      ]
+    },
+    "safeError": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["error_type", "retryable", "safe_message"],
+      "properties": {
+        "error_type": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._:-]+$" },
+        "retryable": { "type": "boolean" },
+        "safe_message": { "type": "string", "minLength": 1, "maxLength": 2000 },
+        "retry_after_seconds": { "type": "integer", "minimum": 0, "maximum": 86400 },
+        "support_reference": { "$ref": "#/$defs/identifier" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "input_artifact_count": { "type": "integer", "minimum": 0 },
+        "output_artifact_count": { "type": "integer", "minimum": 0 },
+        "verified_source_count": { "type": "integer", "minimum": 0 },
+        "word_count": { "type": "integer", "minimum": 0 },
+        "elapsed_ms": { "type": "integer", "minimum": 0 },
+        "custom": {
+          "type": "object",
+          "patternProperties": { "^[a-z][a-z0-9_]{0,63}$": { "type": ["number", "integer", "string", "boolean"] } },
+          "additionalProperties": false
+        }
+      }
+    },
+    "taskResult": {
+      "oneOf": [
+        { "$ref": "#/$defs/taskResultSucceeded" },
+        { "$ref": "#/$defs/taskResultBlocked" },
+        { "$ref": "#/$defs/taskResultFailed" }
+      ]
+    },
+    "taskResultBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol_version", "message_type", "message_id", "in_reply_to", "run_id", "task_date", "timezone", "agent", "stage", "ruleset_version", "status", "summary", "output_artifacts", "issues", "next_action", "started_at", "finished_at"],
+      "properties": {
+        "protocol_version": { "const": "1.0" },
+        "message_type": { "const": "task.result" },
+        "message_id": { "$ref": "#/$defs/identifier" },
+        "in_reply_to": { "$ref": "#/$defs/identifier" },
+        "correlation_id": { "$ref": "#/$defs/identifier" },
+        "trace_id": { "$ref": "#/$defs/identifier" },
+        "run_id": { "$ref": "#/$defs/runId" },
+        "task_date": { "$ref": "#/$defs/date" },
+        "timezone": { "$ref": "#/$defs/timezone" },
+        "agent": { "$ref": "#/$defs/agentId" },
+        "stage": { "$ref": "#/$defs/stage" },
+        "ruleset_version": { "$ref": "#/$defs/rulesetVersion" },
+        "status": { "type": "string", "enum": ["succeeded", "blocked", "failed"] },
+        "summary": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "output_artifacts": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/artifactRef" } },
+        "issues": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
+        "next_action": { "type": "string", "enum": ["continue", "revise", "retry", "escalate", "abort"] },
+        "error": { "$ref": "#/$defs/safeError" },
+        "metrics": { "$ref": "#/$defs/metrics" },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "finished_at": { "$ref": "#/$defs/timestamp" },
+        "extensions": {
+          "type": "object",
+          "patternProperties": { "^x-[a-z0-9][a-z0-9_.-]*$": {} },
+          "additionalProperties": false
+        }
+      }
+    },
+    "taskResultSucceeded": {
+      "allOf": [
+        { "$ref": "#/$defs/taskResultBase" },
+        { "properties": { "status": { "const": "succeeded" }, "next_action": { "const": "continue" }, "output_artifacts": { "minItems": 1 }, "issues": { "maxItems": 0 } } },
+        { "not": { "required": ["error"] } }
+      ]
+    },
+    "taskResultBlocked": {
+      "allOf": [
+        { "$ref": "#/$defs/taskResultBase" },
+        { "properties": { "status": { "const": "blocked" }, "issues": { "minItems": 1 }, "next_action": { "enum": ["revise", "escalate", "abort"] } } },
+        { "not": { "required": ["error"] } }
+      ]
+    },
+    "taskResultFailed": {
+      "allOf": [
+        { "$ref": "#/$defs/taskResultBase" },
+        { "properties": { "status": { "const": "failed" }, "next_action": { "enum": ["retry", "escalate", "abort"] } }, "required": ["error"] }
+      ]
+    },
+    "runState": {
+      "type": "string",
+      "enum": [
+        "created", "researching", "researched", "drafting", "drafted", "editing", "edited",
+        "validating", "ready_for_docs", "docs_saving", "delivery_pending", "docs_saved", "completed",
+        "evaluating", "evaluated", "blocked", "error"
+      ]
+    },
+    "agentStageState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "attempt"],
+      "properties": {
+        "status": { "type": "string", "enum": ["not_started", "running", "succeeded", "blocked", "failed", "skipped"] },
+        "attempt": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "last_message_id": { "$ref": "#/$defs/identifier" },
+        "started_at": { "$ref": "#/$defs/timestamp" },
+        "finished_at": { "$ref": "#/$defs/timestamp" },
+        "artifact_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/identifier" } },
+        "error_type": { "type": "string", "maxLength": 128 }
+      }
+    },
+    "googleDocsState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "type": "string", "enum": ["not_started", "pending", "delivery_pending", "saved", "failed"] },
+        "document_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "url": { "type": "string", "format": "uri", "pattern": "^https://docs\\.google\\.com/document/d/" },
+        "title": { "type": "string", "maxLength": 512 },
+        "saved_at": { "$ref": "#/$defs/timestamp" },
+        "attempt": { "type": "integer", "minimum": 0, "maximum": 20 }
+      },
+      "allOf": [
+        { "if": { "properties": { "status": { "const": "saved" } }, "required": ["status"] }, "then": { "required": ["document_id", "url", "saved_at"] } }
+      ]
+    },
+    "runManifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol_version", "message_type", "run_id", "task_date", "timezone", "state", "current_stage", "ruleset_version", "created_at", "updated_at", "attempts", "stages", "artifacts", "google_docs"],
+      "properties": {
+        "protocol_version": { "const": "1.0" },
+        "message_type": { "const": "run.manifest" },
+        "run_id": { "$ref": "#/$defs/runId" },
+        "task_date": { "$ref": "#/$defs/date" },
+        "timezone": { "$ref": "#/$defs/timezone" },
+        "state": { "$ref": "#/$defs/runState" },
+        "current_stage": { "$ref": "#/$defs/stage" },
+        "ruleset_version": { "$ref": "#/$defs/rulesetVersion" },
+        "created_at": { "$ref": "#/$defs/timestamp" },
+        "updated_at": { "$ref": "#/$defs/timestamp" },
+        "attempts": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "research": { "type": "integer", "minimum": 0, "maximum": 20 },
+            "writing": { "type": "integer", "minimum": 0, "maximum": 20 },
+            "editing": { "type": "integer", "minimum": 0, "maximum": 20 },
+            "validation": { "type": "integer", "minimum": 0, "maximum": 20 },
+            "docs": { "type": "integer", "minimum": 0, "maximum": 20 }
+          }
+        },
+        "stages": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "research": { "$ref": "#/$defs/agentStageState" },
+            "writing": { "$ref": "#/$defs/agentStageState" },
+            "editing": { "$ref": "#/$defs/agentStageState" },
+            "validation": { "$ref": "#/$defs/agentStageState" },
+            "docs": { "$ref": "#/$defs/agentStageState" }
+          }
+        },
+        "artifacts": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/artifactRef" } },
+        "google_docs": { "$ref": "#/$defs/googleDocsState" },
+        "last_error": { "$ref": "#/$defs/safeError" },
+        "extensions": {
+          "type": "object",
+          "patternProperties": { "^x-[a-z0-9][a-z0-9_.-]*$": {} },
+          "additionalProperties": false
+        }
+      }
+    },
+    "stateEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol_version", "message_type", "message_id", "run_id", "task_date", "timestamp", "actor", "event_type", "stage", "status"],
+      "properties": {
+        "protocol_version": { "const": "1.0" },
+        "message_type": { "const": "state.event" },
+        "message_id": { "$ref": "#/$defs/identifier" },
+        "run_id": { "$ref": "#/$defs/runId" },
+        "task_date": { "$ref": "#/$defs/date" },
+        "timestamp": { "$ref": "#/$defs/timestamp" },
+        "actor": { "$ref": "#/$defs/agentId" },
+        "event_type": {
+          "type": "string",
+          "enum": [
+            "run.started", "task.dispatched", "task.started", "task.succeeded", "task.blocked", "task.failed",
+            "stage.changed", "docs.saved", "docs.delivery_pending", "run.completed", "run.failed", "protocol.rejected"
+          ]
+        },
+        "stage": { "$ref": "#/$defs/stage" },
+        "status": { "type": "string", "enum": ["running", "passed", "blocked", "error", "delivery_pending"] },
+        "from_state": { "$ref": "#/$defs/runState" },
+        "to_state": { "$ref": "#/$defs/runState" },
+        "attempt": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "correlation_id": { "$ref": "#/$defs/identifier" },
+        "artifact_refs": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/artifactRef" } },
+        "safe_detail": { "type": "string", "maxLength": 1000 },
+        "extensions": {
+          "type": "object",
+          "patternProperties": { "^x-[a-z0-9][a-z0-9_.-]*$": {} },
+          "additionalProperties": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "market_scope": "replace-with-covered-markets",
+  "news_count": 1,
+  "topic_instructions": [
+    "replace-with-approved-daily-topics-or-selection-policy"
+  ],
+  "source_allowlist": [
+    "reuters.com",
+    "ecb.europa.eu",
+    "federalreserve.gov"
+  ]
+}

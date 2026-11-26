@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "skill_version": "1.2.0",
+  "project_id": null,
+  "updated_at": null,
+  "course_timezone": "Europe/Bucharest",
+  "start_time": "20:00",
+  "current_learning_stage": null,
+  "last_completed_lesson": null,
+  "covered_patterns": [],
+  "covered_concepts": [],
+  "understanding_evidence": [],
+  "unresolved_questions": [],
+  "planned_next": null,
+  "history": [],
+  "note": "空值表示尚无资料；计划、草稿、已定稿、已授课须分别记录。"
+}

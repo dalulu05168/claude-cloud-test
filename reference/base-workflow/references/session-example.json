@@ -1,0 +1,21 @@
+{
+  "operation_id": "example-save-001",
+  "expected_revision": 0,
+  "expected_record_version": 0,
+  "save_authorization_ref": "测试样例：用户启用项目进度保存",
+  "session": {
+    "task_date": "unknown",
+    "timezone": "Europe/Bucharest",
+    "source_ref": "测试样例，非真实项目记录",
+    "source_revision": "example-1",
+    "adopted_text": "",
+    "adoption_ref": "",
+    "candidate_text": "【教学模拟｜非真实成员发言或交易记录】\n14男：还要看比较基准。",
+    "current_node": "候选片段待采用",
+    "completed_count": 0,
+    "next_step": "等待用户评阅候选",
+    "stop_after": "不继续扩写，不闭群",
+    "unresolved": ["候选尚未采用"],
+    "selected_ids": ["14"]
+  }
+}

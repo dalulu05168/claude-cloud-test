@@ -1,0 +1,11 @@
+.westcott-state/
+.claude/settings.local.json
+.env
+# Deployment-only automation configuration and runtime artifacts
+automation/daily.env
+automation/feedback.env
+automation/daily-brief.json
+.westcott-state/
+logs/
+rules/active.json
+rules/candidates/

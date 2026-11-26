@@ -1,0 +1,18 @@
+{
+  "message_limits": {
+    "morning": [
+      32,
+      35
+    ],
+    "afternoon": [
+      35,
+      38
+    ],
+    "evening": [
+      32,
+      35
+    ]
+  },
+  "tolerance": 3,
+  "default_cast_limit": 52
+}
