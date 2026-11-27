@@ -1,5 +1,4 @@
 {
-  "agent": "westcott-director",
   "hooks": {
     "Stop": [
       {

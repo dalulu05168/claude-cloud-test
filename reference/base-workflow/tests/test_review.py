@@ -128,6 +128,36 @@ class Voice231(unittest.TestCase):
         self.assertNotIn('排队', issues(run(mixed)[1], 'warn'))
 
 
+class MemberRunTest(unittest.TestCase):
+    def test_seven_members_in_a_row_fails(self):
+        nl = chr(10)
+        body = '===== 资讯助理 =====' + nl + '🌤大家早上好！欢迎回到 ELLERY WESTCOTT 社群！' + nl + nl
+        for i in ('01', '03', '04', '05', '06', '08', '09'):
+            body += i + '男：' + nl + '早' + nl
+        code, res = run(body)
+        self.assertEqual(code, 1)
+        self.assertIn('连着发言', str(res))
+
+
+class MemberNumbersTest(unittest.TestCase):
+    def test_member_reading_two_numbers_warns(self):
+        nl = chr(10)
+        body = '===== 资讯助理 =====' + nl + '🌤大家早上好！欢迎回到 ELLERY WESTCOTT 社群！' + nl + nl
+        body += '12男：' + nl + 'BET涨了0.24%，BET-BK涨了0.36%' + nl
+        code, res = run(body)
+        self.assertIn('读指标', str(res))
+
+
+class MemberQuestionsTest(unittest.TestCase):
+    def test_all_questions_group_warns(self):
+        nl = chr(10)
+        body = '===== 资讯助理 =====' + nl + '🌤大家早上好！欢迎回到 ELLERY WESTCOTT 社群！' + nl + nl
+        for i in ('01', '03', '04'):
+            body += i + '男：' + nl + '这个是不是要等？' + nl
+        code, res = run(body)
+        self.assertIn('全是提问', str(res))
+
+
 if __name__ == '__main__':
     unittest.main()
 
@@ -135,11 +165,11 @@ if __name__ == '__main__':
 class EveningRules(unittest.TestCase):
     HEAD = '===== 资讯助理 =====\n🌤 大家晚上好！欢迎回来！\n\n'
 
-    def test_member_romanian_words_fail_in_all_sessions(self):
+    def test_evening_member_romanian_fails_but_morning_ok(self):
         code, res = run(self.HEAD + '12男：\nPăi，SNP今天见绿了。\n', '--fragment')
         self.assertEqual(code, 1)
         code, res = run('===== 资讯助理 =====\n🌤 大家早上好！欢迎回来！\n\n12男：\nPăi，SNP今天见绿了。\n', '--fragment')
-        self.assertEqual(code, 1)
+        self.assertEqual(res['status'], 'PASS')
 
     def test_evening_member_quotes_and_you_two_fail(self):
         for t in ('那句话里的“总算”听着像松一口气', '你们两个都在猜'):

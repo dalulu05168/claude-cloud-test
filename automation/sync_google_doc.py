@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
@@ -137,7 +138,7 @@ def find_existing(drive, folder_id: str, run_id: str) -> list[dict]:
             return found
 
 
-def _load_and_check(args) -> tuple[str, bytes, str]:
+def _load_and_check(args) -> tuple[str, str, str]:
     draft = Path(args.input).resolve(strict=True)
     manifest_path = Path(args.manifest).resolve(strict=True)
     if draft.name != "draft.md" or manifest_path.name != "manifest.json" or draft.parent != manifest_path.parent:
@@ -191,7 +192,41 @@ def _load_and_check(args) -> tuple[str, bytes, str]:
             or research_record.get("sha256") != research_digest
             or research_record.get("size_bytes") != len(research_bytes)):
         raise ValueError("research record differs from its manifest integrity record")
-    return markdown, content_bytes, digest
+    ruleset_version = manifest.get("ruleset_version")
+    if not isinstance(ruleset_version, str) or not ruleset_version.strip():
+        raise ValueError("manifest must identify the approved draft ruleset version")
+
+    approval_path = Path(args.approval).resolve(strict=True)
+    if approval_path.is_relative_to(draft.parent):
+        raise ValueError("approval must come from outside the draft run directory")
+    with approval_path.open("rb") as approval_file:
+        approval_bytes = approval_file.read(16_385)
+    if len(approval_bytes) > 16_384:
+        raise ValueError("approval receipt exceeds the size limit")
+    approval = json.loads(approval_bytes)
+    binding = {
+        "action": "publish_google_doc",
+        "decision": "approved",
+        "run_id": args.run_id,
+        "task_date": args.date,
+        "ruleset_version": ruleset_version,
+        "folder_id": args.folder_id,
+        "draft_sha256": digest,
+        "research_sha256": research_digest,
+    }
+    if not isinstance(approval, dict) or any(approval.get(key) != value for key, value in binding.items()):
+        raise ValueError("human approval does not match this draft, research, ruleset or destination")
+    reviewer = approval.get("approved_by")
+    approved_at = approval.get("approved_at")
+    if not isinstance(reviewer, str) or not reviewer.strip() or not isinstance(approved_at, str):
+        raise ValueError("human approval requires an approver and approval time")
+    try:
+        approved_time = datetime.fromisoformat(approved_at.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("human approval time must include a date, time and timezone") from exc
+    if approved_time.utcoffset() is None:
+        raise ValueError("human approval time must include a date, time and timezone")
+    return markdown, digest, ruleset_version
 
 
 def _build_drive_service():
@@ -207,7 +242,7 @@ def _build_drive_service():
 def publish(args) -> dict:
     if len(args.run_id) > 124:
         raise ValueError("run_id is too long for the Drive appProperties idempotency marker")
-    markdown, content_bytes, digest = _load_and_check(args)
+    markdown, digest, ruleset_version = _load_and_check(args)
     drive = _build_drive_service()
     existing = find_existing(drive, args.folder_id, args.run_id)
     if len(existing) > 1:
@@ -230,7 +265,7 @@ def publish(args) -> dict:
         }
 
     try:
-        from googleapiclient.http import MediaFileUpload
+        from googleapiclient.http import MediaIoBaseUpload
     except ImportError as exc:
         raise RuntimeError("google-api-python-client is required; install automation/requirements-docs.txt") from exc
 
@@ -244,17 +279,18 @@ def publish(args) -> dict:
             "appProperties": {
                 "westcott_run_id": args.run_id,
                 "westcott_content_sha256": digest,
-                "westcott_ruleset_version": _ruleset_version(args.manifest),
+                "westcott_ruleset_version": ruleset_version[:124],
             },
             "description": f"Automated Westcott daily content; run_id={args.run_id}",
         }
-        media = MediaFileUpload(str(docx_path), mimetype=DOCX_MIME, resumable=True)
-        created = drive.files().create(
-            body=metadata,
-            media_body=media,
-            fields="id,name,mimeType,webViewLink,appProperties,parents",
-            supportsAllDrives=True,
-        ).execute()
+        with docx_path.open("rb") as stream:
+            media = MediaIoBaseUpload(stream, mimetype=DOCX_MIME, resumable=True)
+            created = drive.files().create(
+                body=metadata,
+                media_body=media,
+                fields="id,name,mimeType,webViewLink,appProperties,parents",
+                supportsAllDrives=True,
+            ).execute()
 
     if created.get("mimeType") != GOOGLE_DOC_MIME:
         # Do not delete a file automatically; retain it for operator inspection.
@@ -269,11 +305,6 @@ def publish(args) -> dict:
     }
 
 
-def _ruleset_version(manifest_path: str) -> str:
-    manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
-    return str(manifest.get("ruleset_version", "unknown"))[:124]
-
-
 def parse_args(argv: Iterable[str] | None = None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, help="validated Markdown draft path")
@@ -282,6 +313,8 @@ def parse_args(argv: Iterable[str] | None = None):
     parser.add_argument("--title", required=True)
     parser.add_argument("--folder-id", required=True, help="authorized Google Drive folder ID")
     parser.add_argument("--manifest", required=True, help="validated run manifest JSON")
+    parser.add_argument("--approval", required=True, help="receipt from the operator-controlled approval directory")
+    parser.add_argument("--check-only", action="store_true", help="verify inputs and approval without contacting Google")
     return parser.parse_args(argv)
 
 
@@ -289,7 +322,11 @@ def main(argv: Iterable[str] | None = None) -> int:
     logging.basicConfig(level=os.getenv("WESTCOTT_LOG_LEVEL", "INFO"), stream=sys.stderr,
                         format="%(asctime)s %(levelname)s %(name)s %(message)s")
     try:
-        result = publish(parse_args(argv))
+        args = parse_args(argv)
+        if args.check_only:
+            _load_and_check(args)
+            return 0
+        result = publish(args)
         # run-daily.sh consumes exactly one JSON object from stdout.
         print(json.dumps(result, ensure_ascii=False, separators=(",", ":")))
         return 0

@@ -331,13 +331,16 @@ class ProtocolMiddleware:
     def _claim(self, req: dict[str, Any]) -> dict[str, Any] | None:
         now = utc_now()
         stage = req["stage"]
+        request_json = _json(req)
         with self._database() as db:
             db.execute("BEGIN IMMEDIATE")
             existing = db.execute(
-                "SELECT status,result_json FROM tasks WHERE run_id=? AND idempotency_key=?",
+                "SELECT status,result_json,request_json FROM tasks WHERE run_id=? AND idempotency_key=?",
                 (req["run_id"], req["idempotency_key"]),
             ).fetchone()
             if existing:
+                if existing["request_json"] != request_json:
+                    raise ProtocolValidationError("idempotency key was already used for a different request")
                 if existing["status"] == "running":
                     raise DuplicateInProgress("an identical idempotent request is already running")
                 db.execute("COMMIT")
@@ -398,7 +401,7 @@ class ProtocolMiddleware:
             db.execute(
                 "INSERT INTO tasks(run_id,idempotency_key,message_id,stage,attempt,max_attempts,status,result_json,request_json) VALUES (?,?,?,?,?,?,?,?,?)",
                 (req["run_id"], req["idempotency_key"], req["message_id"], stage, req["attempt"],
-                 req["max_attempts"], "running", None, _json(req)),
+                 req["max_attempts"], "running", None, request_json),
             )
             event = self._event(req, "task.started", "running", from_state, IN_PROGRESS[stage])
             self.validate_message(event, "state.event")

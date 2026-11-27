@@ -118,7 +118,7 @@ set -a
 source "$ENV_FILE"
 set +a
 
-WESTCOTT_TIMEZONE="${WESTCOTT_TIMEZONE:-Asia/Shanghai}"
+WESTCOTT_TIMEZONE="${WESTCOTT_TIMEZONE:-Europe/Bucharest}"
 export TZ="$WESTCOTT_TIMEZONE"
 RUN_DATE="${1:-$(date '+%F')}"
 if [[ ! "$RUN_DATE" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
@@ -200,14 +200,46 @@ finish_pending_review() {
   exit 0
 }
 
+finish_waiting_for_approval() {
+  record_event "docs_approval_pending" "pending_review"
+  log INFO "validated draft retained for human approval: $1"
+  exit 0
+}
+
+review_with_codex() {
+  case "${WESTCOTT_CODEX_REVIEW,,}" in
+    false|0|no) return 0 ;;
+    true|1|yes) ;;
+    *) log ERROR "WESTCOTT_CODEX_REVIEW must be true or false"; return 2 ;;
+  esac
+  CURRENT_STAGE="codex_review"
+  if "${WESTCOTT_PYTHON:-python3}" "$SCRIPT_DIR/codex_handoff.py" --run-dir "$RUN_DIR" >/dev/null; then
+    record_event "codex_review_completed" "ready_for_human_review"
+    return 0
+  fi
+  record_event "codex_review_pending" "pending_review"
+  log INFO "Codex review needs evidence or is unavailable; draft retained for review"
+  return 2
+}
+
 record_event "daily_run_started" "running"
+if [[ -n "${WESTCOTT_HISTORY_DOC_ID:-}" ]]; then
+  CURRENT_STAGE="history_refresh"
+  if "${WESTCOTT_PYTHON:-python3}" "$SCRIPT_DIR/sync_docs_history.py" \
+      --document-id "$WESTCOTT_HISTORY_DOC_ID" --cache-dir "$STATE_DIR"; then
+    record_event "history_refreshed" "passed"
+  else
+    record_event "history_refresh_pending" "pending_review"
+    log WARN "history refresh unavailable; cached dates may be out of date"
+  fi
+fi
 AUTO_PUBLISH_SETTING="${WESTCOTT_AUTO_PUBLISH:-false}"
 AUTO_PUBLISH_SETTING="${AUTO_PUBLISH_SETTING,,}"
+WESTCOTT_CODEX_REVIEW="${WESTCOTT_CODEX_REVIEW:-false}"
 if manifest_is_draft_pending_review \
   && [[ "$AUTO_PUBLISH_SETTING" != "true" && "$AUTO_PUBLISH_SETTING" != "1" && "$AUTO_PUBLISH_SETTING" != "yes" ]]; then
-  finish_pending_review
-fi
-if ! manifest_is_ready; then
+  log INFO "existing candidate retained for review"
+elif ! manifest_is_ready; then
   CURRENT_STAGE="orchestrator"
   log INFO "starting orchestrator agent=$WESTCOTT_ORCHESTRATOR_AGENT"
   "$WESTCOTT_AGENT_RUNNER" \
@@ -222,11 +254,41 @@ if ! manifest_is_ready; then
 fi
 
 if manifest_is_draft_pending_review; then
+  review_with_codex || true
   finish_pending_review
 fi
 
 if ! manifest_is_ready; then
   fatal 65 "orchestrator did not produce a validated draft and ready_for_docs manifest"
+fi
+
+if ! review_with_codex; then
+  finish_waiting_for_approval "Codex review needs evidence or is unavailable"
+fi
+
+CURRENT_STAGE="docs_approval"
+case "$AUTO_PUBLISH_SETTING" in
+  true|1|yes) ;;
+  *) finish_waiting_for_approval "Docs publishing is disabled" ;;
+esac
+if [[ -z "${WESTCOTT_APPROVAL_DIR:-}" ]]; then
+  finish_waiting_for_approval "approval directory is not configured"
+fi
+APPROVAL_FILE="$WESTCOTT_APPROVAL_DIR/$RUN_ID.json"
+if [[ ! -s "$APPROVAL_FILE" ]]; then
+  finish_waiting_for_approval "no approval receipt for this run"
+fi
+publisher_args=(
+  --input "$DRAFT_FILE"
+  --run-id "$RUN_ID"
+  --date "$RUN_DATE"
+  --title "$WESTCOTT_DOC_TITLE_PREFIX $RUN_DATE"
+  --folder-id "$WESTCOTT_GOOGLE_DRIVE_FOLDER_ID"
+  --manifest "$MANIFEST_FILE"
+  --approval "$APPROVAL_FILE"
+)
+if ! "${WESTCOTT_PYTHON:-python3}" "$SCRIPT_DIR/sync_google_doc.py" --check-only "${publisher_args[@]}"; then
+  finish_waiting_for_approval "approval or artifact integrity check failed"
 fi
 
 CURRENT_STAGE="google_docs_publish"
@@ -238,13 +300,7 @@ if [[ -z "$WESTCOTT_GOOGLE_DRIVE_FOLDER_ID" || "$WESTCOTT_GOOGLE_DRIVE_FOLDER_ID
 fi
 log INFO "publishing validated draft to Google Docs folder_id=$WESTCOTT_GOOGLE_DRIVE_FOLDER_ID"
 rm -f -- "$DOCS_RESULT_TMP"
-"$WESTCOTT_DOCS_PUBLISHER" \
-  --input "$DRAFT_FILE" \
-  --run-id "$RUN_ID" \
-  --date "$RUN_DATE" \
-  --title "$WESTCOTT_DOC_TITLE_PREFIX $RUN_DATE" \
-  --folder-id "$WESTCOTT_GOOGLE_DRIVE_FOLDER_ID" \
-  --manifest "$MANIFEST_FILE" > "$DOCS_RESULT_TMP"
+"$WESTCOTT_DOCS_PUBLISHER" "${publisher_args[@]}" > "$DOCS_RESULT_TMP"
 
 if ! jq -e --arg run_id "$RUN_ID" \
     '.run_id == $run_id and .status == "saved" and ((.document_id | type) == "string") and ((.url | type) == "string") and (.url | startswith("https://docs.google.com/document/d/"))' \

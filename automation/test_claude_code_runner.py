@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 import tempfile
 import unittest
 from argparse import Namespace
@@ -59,6 +61,20 @@ class ClaudeCodeRunnerTests(unittest.TestCase):
             "FAKE_CLAUDE_ARGS_PATH": str(self.args_record),
             "GOOGLE_APPLICATION_CREDENTIALS": "/secret/adc.json",
         }
+        if os.name == "nt":
+            self.env["SystemRoot"] = os.environ["SystemRoot"]
+            # Windows cannot execute the fixture scripts via POSIX shebangs.
+            # Keep the real child process to exercise stdin, timeouts and exit codes.
+            popen = subprocess.Popen
+
+            def launch_fixture(args, **kwargs):
+                if Path(args[0]).parent == self.fake_bin:
+                    args = [sys.executable, "-B", "-X", "utf8", *args]
+                return popen(args, **kwargs)
+
+            fixture_patch = patch.object(subprocess, "Popen", side_effect=launch_fixture)
+            fixture_patch.start()
+            self.addCleanup(fixture_patch.stop)
 
     def tearDown(self):
         self.temp.cleanup()
@@ -123,7 +139,8 @@ else:
         self.assertEqual(manifest["status"], "drafted")
         self.assertEqual(manifest["validation"]["status"], "pending_review")
         self.assertEqual(manifest["google_docs"]["status"], "not_started")
-        self.assertEqual(draft.stat().st_mode & 0o777, 0o600)
+        if os.name != "nt":
+            self.assertEqual(draft.stat().st_mode & 0o777, 0o600)
 
         invocation = json.loads(self.args_record.read_text(encoding="utf-8"))
         args = invocation["args"]

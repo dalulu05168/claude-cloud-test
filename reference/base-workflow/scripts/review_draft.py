@@ -8,7 +8,7 @@
 检查：国内股民黑话/中式俚语与成语、渲染性用词、学习群式空表态、中国式涨跌颜色、
 盘中具体时刻、成员编造持仓、先生说“答案是”、成员编号越界（默认01—52）、禁止一对一发言（先生/助理与成员交替）、成员发言重复、活动答题成员不选答案、先生助理点名回应成员、称呼“朋友”、各场条数、
 晚间收尾三句、周二四晚间作业、新闻发布时间顺序（需 --times）。
-成员台词不夹罗语原词（各场）；晚场另查：不带引号、不用“你们两个”，先生助理不用“有成员问/认为”；给 --topic 时查交棒句不点课题。
+晚场另查：成员台词不夹罗语口头词、不带引号、不用“你们两个”，先生助理不用“有成员问/认为”；给 --topic 时查交棒句不点课题。
 2.3.1起：成员台词可写成“12男：台词”同行格式；另查称呼（成员称先生不说“老师”，
 先生和助理统一称“成员”）、@编号、后台口吻、集体夸奖、排队发言、先生用股民口头说法。
 退出码：0=PASS（可能有提醒），1=FAIL，2=输入错误。
@@ -76,7 +76,7 @@ HEAD_OK = re.compile(r'^(?:🇺🇸 美股｜(?:昨晚|上周五|前一交易日
 HEAD_LIKE = re.compile(r'^(?:🇷🇴|🇺🇸|📊|📈|🏢)\s*.*(?:｜|止盈提醒)')
 HEAD_OLD = re.compile(r'阶段止盈提醒|开盘播报')
 NB_HYPHEN = '‑'
-# 机械检查：成员台词不夹罗语原词（各场，用户2026-11-26确认）；晚场（用户2026-11-25采用稿）另查不用引号；先生和助理不用“有成员问/认为”引出回答
+# 晚场新增机械检查（用户2026-11-25采用稿）：成员台词不夹罗语口头词、不用引号；先生和助理不用“有成员问/认为”引出回答
 RO_WORDS = re.compile(r'\b(?:Păi|Pai|Mda|Gata|Deci|Adică|Adica|Serios|Hai|Bine|Exact|Mersi)\b')
 QUOTE_CHARS = re.compile(r'[“”"「」]')
 SOME_MEMBER = re.compile(r'有成员(?:问|认为|说|提到|觉得)')
@@ -219,9 +219,9 @@ def main():
             if AT_NUMBER.search(t):
                 add('FAIL', ln, '@人用了编号，群里@某人写成员名字', t)
             if b['role'] == 'MEMBER':
-                if RO_WORDS.search(t):
-                    add('FAIL', ln, '%s 成员台词夹了罗语原词，口头禅请写成中文' % b['label'], t)
                 if b['session'] == '晚间':
+                    if RO_WORDS.search(t):
+                        add('FAIL', ln, '%s 晚场成员台词夹了罗语口头词，晚场不用' % b['label'], t)
                     if QUOTE_CHARS.search(t):
                         add('FAIL', ln, '%s 晚场成员台词带了引号，应去掉' % b['label'], t)
                     if YOU_TWO.search(t):
@@ -248,6 +248,8 @@ def main():
                     add('WARN', ln, '%s 在夸先生或替机构说话，确认是否必要' % b['label'], t)
                 if len(re.sub(r'\s', '', t)) > LONG_LINE:
                     add('WARN', ln, '%s 台词很长，确认真实群聊里会不会这样发' % b['label'], t)
+                if len(re.findall(r'\d[\d,.]*', t)) >= 2:
+                    add('WARN', ln, '%s 一句里带了两个以上数字，像在读指标（用户2026-11-27），数字留给助理播报' % b['label'], t)
             else:
                 for w in slang:
                     add('WARN', ln, '%s 用了股民口头说法「%s」，先生和助理应使用专业术语' % (b['label'], w), t)
@@ -296,6 +298,24 @@ def main():
         for i in range(len(roles) - 4):
             if roles[i:i + 5] == ['N', 'M', 'N', 'M', 'N']:
                 add('FAIL', bs[i + 1]['line'], '%s先生/助理与成员一问一答交替（禁止一对一发言）' % name)
+                break
+        mq = [(b['role'] == 'MEMBER') and any(('？' in t2 or '?' in t2) for _, t2 in b['body']) for b in bs]
+        grp = []
+        for i, b in enumerate(bs + [{'role': 'END', 'line': 0}]):
+            if b['role'] == 'MEMBER':
+                grp.append(i)
+                continue
+            if len(grp) >= 3 and all(mq[j] for j in grp):
+                add('WARN', bs[grp[0]]['line'], '%s这一组成员全是提问（用户2026-11-27），要有陈述、立场或不同意见' % name)
+            grp = []
+        member_n = sum(1 for b in bs if b['role'] == 'MEMBER')
+        if member_n >= 6 and sum(mq) * 2 > member_n:
+            add('WARN', bs[0]['line'], '%s成员问句过半（%d/%d），多数发言都在向先生提问' % (name, sum(mq), member_n))
+        run_len = 0
+        for b in bs:
+            run_len = run_len + 1 if b['role'] == 'MEMBER' else 0
+            if run_len == 7:
+                add('FAIL', b['line'], '%s成员连着发言超过6位，要用助理新闻隔开（用户2026-11-25）' % name)
                 break
         seen_lines = {}
         for b in bs:

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -32,6 +33,23 @@ try {
   const [emptyResume] = run([call(1, 'get_resume_context', {})]);
   assert.deepEqual(decode(emptyResume), { status: 'empty', timezone: 'Europe/Bucharest' });
   assert.equal(existsSync(stateDirectory), false);
+  const python = process.env.WESTCOTT_PYTHON || (process.platform === 'win32' ? 'python' : 'python3');
+  if (process.env.WESTCOTT_PYTHON || spawnSync(python, ['--version'], { timeout: 2000 }).status === 0) {
+    const reviewInput = { date: '2026-11-27', fragment: true };
+    const body = '===== 资讯助理 =====\n\n🌤 大家下午好！欢迎回到 ELLERY WESTCOTT 社群！\n\n12男：\nPăi，我觉得这个要再看看。\n';
+    const [daytimeReview, eveningReview] = run([
+      call(1, 'review_candidate_draft', { ...reviewInput, body }),
+      call(2, 'review_candidate_draft', { ...reviewInput, scope: 'evening', body: body.replace('下午', '晚上') }),
+    ]).map(decode);
+    assert.equal(daytimeReview.report.status, 'PASS');
+    assert.equal(eveningReview.report.status, 'FAIL');
+    assert.match(JSON.stringify(eveningReview.report), /罗语口头词/);
+    assert.equal(daytimeReview.draft_sha256, createHash('sha256').update(body).digest('hex'));
+    assert.match(daytimeReview.rules_manifest_sha256, /^[a-f0-9]{64}$/);
+    assert.equal(existsSync(stateDirectory), false);
+  } else {
+    console.log('review_candidate_draft execution skipped: set WESTCOTT_PYTHON to a Python 3.9+ executable.');
+  }
   const draftText = { date: '2026-11-17', topic: '箱体', growth_step: '观察机构线索',
     next_question: '为什么要跟踪机构？', body: '教学模拟：先看价量。', source: '模拟课件' };
   const results = run([
@@ -54,7 +72,9 @@ try {
       'preview_mobile_handoff', 'import_mobile_handoff',
       'get_cast_context', 'save_member_profile', 'save_member_activity', 'build_lesson_kit', 'validate_speech_format',
       'validate_whatsapp_voice', 'validate_news_broadcast', 'validate_scene_count',
-      'validate_local_edit', 'plan_market_open']);
+      'validate_local_edit', 'plan_market_open', 'review_candidate_draft', 'get_daily_run_status',
+      'search_docs_history']);
+  assert.equal(results[1].result.tools.find((tool) => tool.name === 'review_candidate_draft').annotations.readOnlyHint, true);
   assert.equal(results[1].result.tools.find((tool) => tool.name === 'get_resume_context').annotations.readOnlyHint, true);
   assert.deepEqual(decode(results[2]).records, []);
   const { id } = decode(results[3]);
@@ -703,7 +723,8 @@ try {
     { country: '罗马尼亚', title: earlierNews.title, image_url: newsImage },
     { country: '美国', title: laterNews.title, image_url: newsImage },
   ]);
-  const evidenceBatch = (entry) => newsBatch([entry], 'afternoon', { require_source_evidence: true });
+  const evidenceOptions = { require_source_evidence: true, as_of: '2026-11-23T14:00:00+02:00' };
+  const evidenceBatch = (entry) => newsBatch([entry], 'afternoon', evidenceOptions);
   const sourceVerified = { ...earlierNews, source_url: newsPage,
     image_check: { ...imageCheck, relation: 'event' } };
   const evidenceCases = [
@@ -722,6 +743,17 @@ try {
     assert.equal(checked.expected_news.length, passed ? 1 : 0);
     if (message) assert.match(checked.issues.map((item) => item.message).join(' '), message);
   }
+  const [emptyEvidence, noCutoff, emptyPreview] = run([
+    call(1, 'validate_news_broadcast', newsBatch([], 'afternoon', evidenceOptions)),
+    call(2, 'validate_news_broadcast', { ...evidenceBatch(sourceVerified), as_of: undefined }),
+    call(3, 'validate_news_broadcast', newsBatch([], 'afternoon')),
+  ]).map(decode);
+  assert.equal(emptyEvidence.passed, false);
+  assert.match(emptyEvidence.issues[0].message, /一条候选内容/);
+  assert.equal(noCutoff.passed, false);
+  assert.match(noCutoff.issues[0].message, /播报截点/);
+  assert.deepEqual(noCutoff.expected_news, []);
+  assert.equal(emptyPreview.passed, true);
   const extensionless = 'https://cdn.example.com/content?image=event-a';
   const imageWithoutExtension = { ...earlierNews, image_url: extensionless,
     image_check: { ...imageCheck, observed_url: extensionless, method: 'rendered', content_type: undefined } };
@@ -925,7 +957,7 @@ try {
   assert.equal(decode(confirmedReplacement).adopted_record_id, confirmRevision.id);
   assert.equal(decode(subsequentAgenda).tasks[0].adopted_record_id, confirmRevision.id);
   assert.equal(decode(subsequentAgenda).next_task.id, philosophy.id);
-  console.log('PASS: 26 MCP tools; saved progress across restarts, course records, scoped edits, focused reads, market opening gates, and news/image checks.');
+  console.log('PASS: 29 MCP tools; saved progress across restarts, course records, scoped edits, focused reads, market opening gates, and news/image checks.');
 } finally {
   rmSync(project, { recursive: true, force: true });
 }

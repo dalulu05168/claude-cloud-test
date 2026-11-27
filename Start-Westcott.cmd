@@ -16,5 +16,5 @@ if errorlevel 1 (
 )
 call node "tools/desktop-doctor.mjs" --quiet
 if errorlevel 1 exit /b %errorlevel%
-call claude --agent westcott-director
+call claude
 exit /b %errorlevel%

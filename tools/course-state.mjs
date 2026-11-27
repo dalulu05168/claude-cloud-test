@@ -14,9 +14,13 @@ import { createSceneCheckpointTools, sceneSession } from './scene-checkpoint.mjs
 import { createRevisionStore, latestSnapshotIds } from './state-revisions.mjs';
 import { createLocalEditTool } from './local-edit.mjs';
 import { createMarketOperationsTool } from './market-operations.mjs';
+import { createCandidateReview } from './review-candidate.mjs';
+import { createDailyRunStatus } from './daily-run-status.mjs';
+import { createDocsHistory } from './docs-history.mjs';
 
 const project = process.env.CLAUDE_PROJECT_DIR || fileURLToPath(new URL('../', import.meta.url));
 const state = resolve(project, '.westcott-state');
+const automationState = resolve(project, process.env.WESTCOTT_STATE_DIR || '.westcott-state');
 const idPattern = /^(draft|adopted)-[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
 const agendaPattern = /^agenda-(\d{6})$/;
 const completionPattern = /^(lesson-completion-[0-9a-f]{64})-\d{6}$/;
@@ -43,6 +47,9 @@ const sceneCheckpoints = createSceneCheckpointTools({ text, schema, dateField, v
 const completionStore = createRevisionStore({ listIds, readEntry, insertRecord });
 const localEdit = createLocalEditTool({ text, schema });
 const marketOperations = createMarketOperationsTool({ text, schema, dateField, validateDate });
+const candidateReview = createCandidateReview({ text, schema, dateField, validateDate });
+const dailyRunStatus = createDailyRunStatus({ schema, dateField, validateDate, state: automationState });
+const docsHistory = createDocsHistory({ text, schema, dateField, validateDate, stateDir: automationState });
 const definitions = [
   {
     name: 'list_records',
@@ -106,6 +113,9 @@ const definitions = [
   ...newsBroadcast.definitions,
   ...localEdit.definitions,
   ...marketOperations.definitions,
+  ...candidateReview.definitions,
+  ...dailyRunStatus.definitions,
+  ...docsHistory.definitions,
 ];
 
 function validate(input, inputSchema) {
@@ -353,6 +363,9 @@ const handlers = {
   ...sceneCheckpoints.handlers,
   ...localEdit.handlers,
   ...marketOperations.handlers,
+  ...candidateReview.handlers,
+  ...dailyRunStatus.handlers,
+  ...docsHistory.handlers,
   async list_records({ kind = 'adopted', limit = 8 }) {
     const history = await readHistory(kind);
     return { ...history, records: history.records.slice(0, limit).map(summarize) };

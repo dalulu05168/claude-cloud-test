@@ -1,4 +1,7 @@
 .westcott-state/logs/
+.westcott-state/runs/
+.westcott-state/locks/
+.westcott-state/history-index.json*
 .claude/settings.local.json
 .env
 # Deployment-only automation configuration and runtime artifacts

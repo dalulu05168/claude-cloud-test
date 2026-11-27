@@ -44,7 +44,7 @@ export function createNewsBroadcastTools({ text, schema, dateField, validateDate
   const definitions = [
     {
       name: 'validate_news_broadcast',
-      description: 'Check unsent news in proposed broadcast order against the Bucharest local date and confirmed broadcasts. Set require_source_evidence for each ready-to-deliver bulletin batch. Prior-day exceptions are limited to the morning US recap.',
+      description: 'Check unsent news in proposed broadcast order against the Bucharest local date and confirmed broadcasts. Set require_source_evidence and provide as_of and the proposed entries for each ready-to-deliver bulletin batch. Prior-day exceptions are limited to the morning US recap.',
       inputSchema: schema({
         date: dateField, session: sessionField,
         entries: { type: 'array', items: entrySchema, minItems: 0, maxItems: 40 },
@@ -84,6 +84,13 @@ export function createNewsBroadcastTools({ text, schema, dateField, validateDate
       const lastUsSession = previousUsSession(date, new Set(closed_us_session_dates));
       const issues = [];
       const expectedNews = [];
+
+      if (require_source_evidence && entries.length === 0) {
+        issues.push({ message: '正式播报核查至少需要一条候选内容。' });
+      }
+      if (require_source_evidence && !as_of) {
+        issues.push({ message: '正式播报核查需要提供带时区的播报截点。' });
+      }
 
       for (const [index, entry] of entries.entries()) {
         const issue = (message) => issues.push({ entry: index + 1, title: entry.title, message });

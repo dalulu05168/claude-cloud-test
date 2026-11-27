@@ -9,7 +9,7 @@ const quiet = process.argv.includes('--quiet');
 const checks = [];
 const add = (id, ok, detail) => checks.push({ id, ok, detail });
 const files = [
-  'CLAUDE.md', '.claude/settings.json', '.mcp.json', '.claude/agents/westcott-director.md',
+  'CLAUDE.md', '.claude/settings.json', '.mcp.json', '.claude/agents/westcott-reviewer.md',
   'tools/course-state.mjs', 'tools/stop-gate.mjs', 'tools/confirm-state-write.mjs',
 ];
 for (const file of files) {

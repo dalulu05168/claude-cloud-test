@@ -55,7 +55,7 @@ function checkRuntime() {
 function checkFiles() {
   const required = [
     '.claude/settings.json',
-    '.claude/agents/westcott-director.md',
+    '.claude/agents/westcott-reviewer.md',
     'CLAUDE.md',
     'tools/stop-gate.mjs',
     'tools/confirm-state-write.mjs',
@@ -72,7 +72,10 @@ function checkFiles() {
 function checkSettings() {
   try {
     const settings = JSON.parse(readFileSync(resolve(ROOT, '.claude/settings.json'), 'utf8'));
-    record('settings:agent', settings.agent === 'westcott-director', '默认主 Agent 应为 westcott-director');
+    const reviewer = readFileSync(resolve(ROOT, '.claude/agents/westcott-reviewer.md'), 'utf8');
+    const usesReviewer = /^model: haiku\s*$/m.test(reviewer)
+      && /^tools: Read, Glob, Grep, mcp__westcott-state__review_candidate_draft\s*$/m.test(reviewer);
+    record('settings:agent', !settings.agent && usesReviewer, '当前会话直接处理，独立审稿使用只读 Haiku Agent');
     const stopOk = (settings.hooks?.Stop ?? [])
       .flatMap((entry) => entry.hooks ?? [])
       .some((hook) => hook.type === 'command' && hook.command === 'node'

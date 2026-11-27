@@ -127,6 +127,41 @@ class RuntimeMiddlewareTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(len(self.calls), 1)
 
+    def test_idempotency_key_rejects_changed_artifact_bytes(self):
+        request = self.request()
+        path = self.state / "runs" / RUN_ID / "input.json"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        original = b"revision 1"
+        path.write_bytes(original)
+        artifact = {
+            "artifact_id": "input-1", "kind": "content_calendar",
+            "uri": f"state://runs/{RUN_ID}/input.json", "media_type": "application/json",
+            "sha256": hashlib.sha256(original).hexdigest(), "size_bytes": len(original),
+            "schema_id": "test-v1", "created_at": timestamp(), "created_by": "westcott-orchestrator",
+        }
+        request["input_artifacts"] = [artifact]
+        first = self.middleware.dispatch(request)
+
+        revised = b"revision 2"
+        path.write_bytes(revised)
+        changed = {**request, "input_artifacts": [{**artifact, "sha256": hashlib.sha256(revised).hexdigest()}]}
+        with self.assertRaisesRegex(ProtocolValidationError, "idempotency key"):
+            self.middleware.dispatch(changed)
+        self.assertEqual(len(self.calls), 1)
+
+        path.write_bytes(original)
+        self.assertEqual(self.middleware.dispatch(request), first)
+
+    def test_idempotency_key_rejects_changed_message_id_or_deadline(self):
+        request = self.request()
+        self.middleware.dispatch(request)
+        for field, value in {"message_id": "different-request", "deadline_at": "2030-01-02T08:30:00Z"}.items():
+            with self.subTest(field=field):
+                changed = {**request, field: value}
+                with self.assertRaisesRegex(ProtocolValidationError, "idempotency key"):
+                    self.middleware.dispatch(changed)
+        self.assertEqual(len(self.calls), 1)
+
     def test_unregistered_recipient_is_rejected(self):
         request = self.request(recipient="shell-command-agent")
         with self.assertRaises(ProtocolValidationError):

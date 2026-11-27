@@ -21,15 +21,29 @@ Claude Desktop 的 Google Workspace 连接用于本地会话。独立 VM 或 CI 
 
 ## 配置 `run-daily.sh`
 
-在受管理员控制的 `automation/daily.env` 中设置可执行适配器路径与目标文件夹 ID：
+在受管理员控制的 `automation/daily.env` 中配置发布入口和审批目录。
 
 ```bash
 WESTCOTT_DOCS_PUBLISHER="/srv/westcott/automation/sync_google_doc.py"
 WESTCOTT_GOOGLE_DRIVE_FOLDER_ID="从 Drive 文件夹 URL 提取的 ID"
 WESTCOTT_DOC_TITLE_PREFIX="Westcott Daily Rhythm"
+WESTCOTT_AUTO_PUBLISH=false
+WESTCOTT_APPROVAL_DIR="/srv/westcott-approvals"
 ```
 
-publisher 还可单独执行：
+打开发布开关后，运行可以先完成独立事实核查。只有当前稿件通过机器核查，且审批目录中存在匹配的 `<run_id>.json`，才调用发布器。审批目录须在模型运行产物目录之外，仅有人工操作人或已经核验操作者身份的审批服务可写。审批记录由该可信来源在用户确认具体版本后写入。
+
+审批记录需要包含以下字段。哈希对应审核时看到的 `draft.md` 和 `research.json` 原始文件字节。修订正文、证据、规则版本或归档目标后，应重新审批。
+
+| 字段 | 值 |
+| --- | --- |
+| `action`、`decision` | `publish_google_doc`、`approved` |
+| `run_id`、`task_date`、`ruleset_version` | 当前 manifest 对应的字段 |
+| `folder_id` | 本次已批准的目标 Drive 文件夹 |
+| `draft_sha256`、`research_sha256` | 本次已批准的稿件、证据 SHA-256 |
+| `approved_by`、`approved_at` | 人工操作人标识、带时区的 ISO 8601 审批时间 |
+
+发布器可以单独运行并执行同一审批检查。加 `--check-only` 只检查本地文件和审批回执。
 
 ```bash
 automation/sync_google_doc.py \
@@ -38,7 +52,8 @@ automation/sync_google_doc.py \
   --date 2026-11-23 \
   --title "Westcott Daily Rhythm 2026-11-23" \
   --folder-id "$WESTCOTT_GOOGLE_DRIVE_FOLDER_ID" \
-  --manifest .westcott-state/runs/daily-2026-11-23/manifest.json
+  --manifest .westcott-state/runs/daily-2026-11-23/manifest.json \
+  --approval "$WESTCOTT_APPROVAL_DIR/daily-2026-11-23.json"
 ```
 
 stdout 只输出一条 JSON，供 `run-daily.sh` 验证并原子写入 `google-docs.json`。诊断写入 stderr。遇到 Google 权限、网络或转换失败时，命令返回非零状态，不会谎报保存成功；调度脚本保留已验证的本地稿件，只重试 Docs 发布阶段。
